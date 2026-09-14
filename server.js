@@ -12,10 +12,10 @@ app.use(express.json());
 // Serve static frontend files
 app.use(express.static(path.join(__dirname, './')));
 
-// Initialize Google Gen AI client
+// Initialize Google Gen AI Client
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-// API Route for concept explanations
+// API Route
 app.post('/api/explain', async (req, res) => {
   try {
     const promptText = req.body.prompt || req.body.concept || req.body.topic || req.body.text;
@@ -25,10 +25,10 @@ app.post('/api/explain', async (req, res) => {
       return res.status(400).json({ error: 'Prompt is required' });
     }
 
-    // Set exact model identifier required by the API
+    // Corrected model string with full path format
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: `Explain "${promptText}" using a ${style} style. Keep it clear, concise, engaging, and structured for a student.`,
+      model: 'models/gemini-1.5-flash',
+      contents: `Explain "${promptText}" using a ${style} style. Keep it clear, engaging, and easy to understand for a student.`,
     });
 
     res.json({ result: response.text });
@@ -38,12 +38,12 @@ app.post('/api/explain', async (req, res) => {
   }
 });
 
-// Fallback route to serve static web app
+// Fallback Route
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Bind to Render dynamic port
+// Port Binding
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
