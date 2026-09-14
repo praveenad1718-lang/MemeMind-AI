@@ -1,4 +1,3 @@
-
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -6,7 +5,7 @@ const { GoogleGenAI } = require('@google/genai');
 
 const app = express();
 
-// Enable CORS and JSON body parsing
+// Middleware
 app.use(cors());
 app.use(express.json());
 
@@ -27,9 +26,9 @@ app.post('/api/explain', async (req, res) => {
       return res.status(400).json({ error: 'Prompt is required' });
     }
 
-    // Call Gemini model using active stable model tag
+    // Call Gemini API using active stable model tag
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-1.5-flash',
       contents: `Explain "${promptText}" using a ${style} style. Keep it concise, clear, engaging, and easy to understand for a student.`,
     });
 
