@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MEMEMIND — Learn. Imagine. Remember.</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="badge-row">
+    <div class="badge brand">🧠 MEMEMIND <span class="ai-tag">AI</span></div>
+    <div class="badge powered">✨ AI POWERED LEARNING</div>
+  </div>
+
+  <h1 class="headline">
+    Learn. <span class="grad-orange">Imagine.</span> <span class="grad-blue">Remember.</span>
+  </h1>
+  <p class="subhead">Turn complex concepts into fun and memorable learning experiences.</p>
+
+  <!-- 3D Canvas -->
+  <div id="canvas-container"></div>
+
+  <!-- SUBJECT REPOSITORY SECTION -->
+  <div class="card repository-card">
+    <div class="card-header">
+      <div class="icon-box repo">📚</div>
+      <div>
+        <h2>My Learning Repository</h2>
+        <p class="muted">Choose a subject and keep your explanations for revision.</p>
+      </div>
+    </div>
+
+    <div class="subject-row">
+      <button class="subject-btn active" data-subject="Python">🐍 Python</button>
+      <button class="subject-btn" data-subject="Java">☕ Java</button>
+      <button class="subject-btn" data-subject="C">💻 C</button>
+      <button class="subject-btn" data-subject="English">🇬🇧 English</button>
+    </div>
+
+    <div class="repository-tools">
+      <input id="historySearch" type="text" placeholder="🔍 Search saved topics..." />
+      <button id="refreshHistoryBtn" class="small-btn">↻ Refresh</button>
+    </div>
+
+    <div id="historyList" class="history-list">
+      <p class="placeholder">No saved chats yet. Generate an explanation to start your repository.</p>
+    </div>
+  </div>
+
+  <!-- INPUT & STYLE GENERATOR -->
+  <div class="card">
+    <div class="card-header">
+      <div class="icon-box">💡</div>
+      <div>
+        <h2>What's on your mind?</h2>
+        <p class="muted">Enter a concept or doubt you want to understand.</p>
+      </div>
+    </div>
+    <textarea id="conceptInput" placeholder="e.g. what is inheritance in java"></textarea>
+
+    <h3 class="section-title" style="margin-top: 20px;">🎨 Choose your learning style</h3>
+    <div class="style-row">
+      <button class="style-btn active" data-style="meme">
+        <span class="style-emoji">😂</span>
+        <span class="style-title">Meme</span>
+        <span class="style-sub">Learn with humor</span>
+      </button>
+      <button class="style-btn" data-style="story">
+        <span class="style-emoji">📖</span>
+        <span class="style-title">Story</span>
+        <span class="style-sub">Learn through stories</span>
+      </button>
+      <button class="style-btn" data-style="reallife">
+        <span class="style-emoji">🌍</span>
+        <span class="style-title">Real Life</span>
+        <span class="style-sub">Learn with examples</span>
+      </button>
+    </div>
+
+    <button id="generateBtn" class="generate-btn">✨ Generate Learning →</button>
+  </div>
+
+  <!-- OUTPUT & CONVERSATION CARD -->
+  <div class="card chat-card">
+    <div class="card-header">
+      <div class="icon-box robot">🤖</div>
+      <div>
+        <h2>MEMEMIND</h2>
+        <p class="muted">Your AI learning experience</p>
+      </div>
+      <div class="status" id="statusDot">● AI READY</div>
+    </div>
+
+    <div class="current-chat-meta" id="currentChatMeta"></div>
+
+    <div id="answerBox" class="answer-box">
+      <p class="placeholder">Your explanation will show up here…</p>
+    </div>
+
+    <div id="followupRow" class="followup-row hidden">
+      <input id="followupInput" type="text" placeholder="What part didn't make sense?" />
+      <button id="followupBtn">🔁 Explain differently</button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
