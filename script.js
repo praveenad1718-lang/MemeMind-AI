@@ -1,87 +1,67 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const generateBtn = document.getElementById('generateBtn') || document.querySelector('button');
-  const promptInput = document.getElementById('promptInput') || document.querySelector('textarea');
-  const answerBox = document.getElementById('answerBox');
-  const followupRow = document.getElementById('followupRow');
-  const followupInput = document.getElementById('followupInput');
-  const followupBtn = document.getElementById('followupBtn');
-  const statusDot = document.getElementById('statusDot');
 
-  let selectedStyle = 'meme';
+// Rate-limit tracking flag
+let isCoolingDown = false;
 
-  // Style Selection Handling
-  const styleCards = document.querySelectorAll('.style-card, [data-style]');
-  styleCards.forEach(card => {
-    card.addEventListener('click', () => {
-      styleCards.forEach(c => c.classList.remove('active'));
-      card.classList.add('active');
+async function requestExplanation(promptText) {
+  if (!promptText.trim()) return;
 
-      const text = card.innerText.toLowerCase();
-      if (card.dataset.style) {
-        selectedStyle = card.dataset.style;
-      } else if (text.includes('story')) {
-        selectedStyle = 'story';
-      } else if (text.includes('real')) {
-        selectedStyle = 'real life';
-      } else {
-        selectedStyle = 'meme';
-      }
+  // Prevent spamming requests during cooldown
+  if (isCoolingDown) {
+    if (answerBox) answerBox.innerText = "⏳ Please wait 15–20 seconds before generating again.";
+    return;
+  }
+
+  if (statusDot) statusDot.innerText = '• THINKING...';
+  if (answerBox) answerBox.innerHTML = '<p class="placeholder">Generating explanation...</p>';
+
+  try {
+    const response = await fetch('/api/explain', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: promptText, style: selectedStyle })
     });
-  });
 
-  // Core Request Handler
-  async function requestExplanation(promptText) {
-    if (!promptText.trim()) return;
+    const data = await response.json();
 
-    if (statusDot) statusDot.innerText = '• THINKING...';
-    if (answerBox) answerBox.innerHTML = '<p class="placeholder">Generating explanation...</p>';
-
-    try {
-      const response = await fetch('/api/explain', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: promptText, style: selectedStyle })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Server error occurred');
-      }
-
-      if (answerBox) answerBox.innerText = data.result;
-      if (statusDot) statusDot.innerText = '• AI READY';
-      if (followupRow) followupRow.classList.remove('hidden');
-
-    } catch (err) {
-      console.error('Request Error:', err);
-      if (answerBox) answerBox.innerText = `Error: ${err.message}`;
-      if (statusDot) statusDot.innerText = '• ERROR';
+    // Catch 429 Rate Limit directly
+    if (response.status === 429) {
+      startCooldown(25);
+      throw new Error("Quota reached! Cooldown active—try again in 25 seconds.");
     }
-  }
 
-  // Initial Generate Button Click
-  if (generateBtn) {
-    generateBtn.addEventListener('click', () => {
-      if (promptInput && promptInput.value.trim()) {
-        requestExplanation(promptInput.value.trim());
+    if (!response.ok) {
+      throw new Error(data.error || 'Server error occurred');
+    }
+
+    if (answerBox) answerBox.innerText = data.result;
+    if (statusDot) statusDot.innerText = '• AI READY';
+    if (followupRow) followupRow.classList.remove('hidden');
+
+  } catch (err) {
+    console.error('Request Error:', err);
+    if (answerBox) answerBox.innerText = `⚠️ ${err.message}`;
+    if (statusDot) statusDot.innerText = '• RATE LIMITED';
+  }
+}
+
+// 25-Second UI Cooldown Handler
+function startCooldown(seconds) {
+  isCoolingDown = true;
+  if (generateBtn) generateBtn.disabled = true;
+
+  let remaining = seconds;
+  const timer = setInterval(() => {
+    remaining--;
+    if (generateBtn) generateBtn.innerText = `⏳ Wait ${remaining}s...`;
+
+    if (remaining <= 0) {
+      clearInterval(timer);
+      isCoolingDown = false;
+      if (generateBtn) {
+        generateBtn.disabled = false;
+        generateBtn.innerText = '✨ Generate Learning →';
       }
-    });
-  }
-
-  // Follow-up "Explain differently" Button Click
-  if (followupBtn) {
-    followupBtn.addEventListener('click', () => {
-      const mainText = promptInput ? promptInput.value.trim() : '';
-      const followText = followupInput ? followupInput.value.trim() : '';
-      
-      const combinedPrompt = followText 
-        ? `${mainText} (Focus specifically on: ${followText})`
-        : mainText;
-
-      if (combinedPrompt) {
-        requestExplanation(combinedPrompt);
-      }
-    });
-  }
-});
+      if (statusDot) statusDot.innerText = '• AI READY';
+    }
+  }, 1000);
+}
