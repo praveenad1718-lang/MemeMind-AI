@@ -18,16 +18,21 @@ app.post('/api/explain', async (req, res) => {
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: 'GEMINI_API_KEY is not set in environment variables' });
+    }
 
-    // Use standard endpoint
-    const url = `https://generativelanguage.googleapis.com/v1beta/interactions?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'gemini-3.6-flash',
-        input: `Explain "${promptText}" using a ${style} style. Keep it clear, concise, engaging, and structured for a student.`
+        contents: [{
+          parts: [{
+            text: `Explain "${promptText}" using a ${style} style. Keep it clear, concise, engaging, and structured for a student.`
+          }]
+        }]
       })
     });
 
@@ -37,8 +42,11 @@ app.post('/api/explain', async (req, res) => {
       return res.status(response.status).json({ error: data.error?.message || 'API Error' });
     }
 
-    // Extract text output from response
-    const reply = data.output?.[0]?.text || data.choices?.[0]?.message?.content || JSON.stringify(data);
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!reply) {
+      return res.status(500).json({ error: 'No content returned from AI model' });
+    }
+
     res.json({ result: reply });
 
   } catch (error) {
