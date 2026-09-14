@@ -1,23 +1,37 @@
 document.addEventListener('DOMContentLoaded', () => {
   const generateBtn = document.getElementById('generateBtn') || document.querySelector('button');
+  const promptInput = document.getElementById('promptInput') || document.querySelector('textarea');
   const answerBox = document.getElementById('answerBox');
   const followupRow = document.getElementById('followupRow');
+  const followupInput = document.getElementById('followupInput');
+  const followupBtn = document.getElementById('followupBtn');
   const statusDot = document.getElementById('statusDot');
 
   let selectedStyle = 'meme';
 
-  // Style selector logic
-  document.querySelectorAll('.style-card, [data-style]').forEach(card => {
+  // Style Selection Handling
+  const styleCards = document.querySelectorAll('.style-card, [data-style]');
+  styleCards.forEach(card => {
     card.addEventListener('click', () => {
-      document.querySelectorAll('.style-card, [data-style]').forEach(c => c.classList.remove('active'));
+      styleCards.forEach(c => c.classList.remove('active'));
       card.classList.add('active');
-      selectedStyle = card.dataset.style || card.innerText.toLowerCase().includes('story') ? 'story' : 
-                      card.innerText.toLowerCase().includes('real') ? 'real' : 'meme';
+
+      const text = card.innerText.toLowerCase();
+      if (card.dataset.style) {
+        selectedStyle = card.dataset.style;
+      } else if (text.includes('story')) {
+        selectedStyle = 'story';
+      } else if (text.includes('real')) {
+        selectedStyle = 'real life';
+      } else {
+        selectedStyle = 'meme';
+      }
     });
   });
 
-  async function sendRequest(promptText) {
-    if (!promptText) return;
+  // Core Request Handler
+  async function requestExplanation(promptText) {
+    if (!promptText.trim()) return;
 
     if (statusDot) statusDot.innerText = '• THINKING...';
     if (answerBox) answerBox.innerHTML = '<p class="placeholder">Generating explanation...</p>';
@@ -32,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Server returned an error');
+        throw new Error(data.error || 'Server error occurred');
       }
 
       if (answerBox) answerBox.innerText = data.result;
@@ -40,17 +54,33 @@ document.addEventListener('DOMContentLoaded', () => {
       if (followupRow) followupRow.classList.remove('hidden');
 
     } catch (err) {
-      console.error(err);
+      console.error('Request Error:', err);
       if (answerBox) answerBox.innerText = `Error: ${err.message}`;
       if (statusDot) statusDot.innerText = '• ERROR';
     }
   }
 
+  // Initial Generate Button Click
   if (generateBtn) {
     generateBtn.addEventListener('click', () => {
-      const input = document.getElementById('promptInput') || document.querySelector('textarea');
-      if (input && input.value.trim()) {
-        sendRequest(input.value.trim());
+      if (promptInput && promptInput.value.trim()) {
+        requestExplanation(promptInput.value.trim());
+      }
+    });
+  }
+
+  // Follow-up "Explain differently" Button Click
+  if (followupBtn) {
+    followupBtn.addEventListener('click', () => {
+      const mainText = promptInput ? promptInput.value.trim() : '';
+      const followText = followupInput ? followupInput.value.trim() : '';
+      
+      const combinedPrompt = followText 
+        ? `${mainText} (Focus specifically on: ${followText})`
+        : mainText;
+
+      if (combinedPrompt) {
+        requestExplanation(combinedPrompt);
       }
     });
   }
