@@ -18,13 +18,16 @@ app.post('/api/explain', async (req, res) => {
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+    // Use standard endpoint
+    const url = `https://generativelanguage.googleapis.com/v1beta/interactions?key=${apiKey}`;
 
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: `Explain "${promptText}" using a ${style} style. Keep it clear, concise, engaging, and structured for a student.` }] }]
+        model: 'gemini-3.6-flash',
+        input: `Explain "${promptText}" using a ${style} style. Keep it clear, concise, engaging, and structured for a student.`
       })
     });
 
@@ -34,7 +37,8 @@ app.post('/api/explain', async (req, res) => {
       return res.status(response.status).json({ error: data.error?.message || 'API Error' });
     }
 
-    const reply = data.candidates[0].content.parts[0].text;
+    // Extract text output from response
+    const reply = data.output?.[0]?.text || data.choices?.[0]?.message?.content || JSON.stringify(data);
     res.json({ result: reply });
 
   } catch (error) {
