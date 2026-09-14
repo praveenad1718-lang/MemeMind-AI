@@ -12,13 +12,13 @@ app.use(express.json());
 // Serve static frontend files (index.html, script.js, style.css)
 app.use(express.static(path.join(__dirname, './')));
 
-// Initialize Google Gen AI client with API key from Render environment variables
+// Initialize Google Gen AI client with API key from environment variables
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-// API Endpoint for generating concept explanations
+// API Route for concept explanations
 app.post('/api/explain', async (req, res) => {
   try {
-    // Check multiple possible frontend payload keys to prevent missing prompt errors
+    // Check multiple possible key names from frontend payload
     const promptText = req.body.prompt || req.body.concept || req.body.topic || req.body.text;
     const style = req.body.style || 'meme';
 
@@ -26,10 +26,10 @@ app.post('/api/explain', async (req, res) => {
       return res.status(400).json({ error: 'Prompt is required' });
     }
 
-    // Call Gemini API using active stable model tag
+    // Call active standard production model
     const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
-      contents: `Explain "${promptText}" using a ${style} style. Keep it concise, clear, engaging, and easy to understand for a student.`,
+      model: 'gemini-2.0-flash',
+      contents: `Explain "${promptText}" using a ${style} style. Keep it clear, concise, engaging, and structured for a student.`,
     });
 
     res.json({ result: response.text });
@@ -39,12 +39,12 @@ app.post('/api/explain', async (req, res) => {
   }
 });
 
-// Fallback route to serve index.html for web application routes
+// Fallback route to serve index.html for frontend single-page navigation
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Bind to dynamic port assigned by Render
+// Bind to Render's dynamic port environment variable
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
