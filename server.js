@@ -1,24 +1,13 @@
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const { GoogleGenAI } = require('@google/genai');
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, './')));
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
-// Available models fallback order
-const CANDIDATE_MODELS = [
-  'gemini-2.0-flash',
-  'gemini-2.5-flash',
-  'gemini-1.5-flash',
-  'models/gemini-2.0-flash',
-  'models/gemini-1.5-flash'
-];
 
 app.post('/api/explain', async (req, res) => {
   try {
@@ -29,35 +18,29 @@ app.post('/api/explain', async (req, res) => {
       return res.status(400).json({ error: 'Prompt is required' });
     }
 
-    let lastError = null;
-    let responseText = null;
-
-    // Try candidate models sequentially until one works
-    for (const modelName of CANDIDATE_MODELS) {
-      try {
-        const response = await ai.models.generateContent({
-          model: modelName,
-          contents: `Explain "${promptText}" using a ${style} style. Keep it concise, engaging, and clear for a student.`,
-        });
-
-        if (response && response.text) {
-          responseText = response.text;
-          console.log(`Successfully generated content using model: ${modelName}`);
-          break;
-        }
-      } catch (err) {
-        console.warn(`Model ${modelName} failed:`, err.message);
-        lastError = err;
+    const apiKey = process.env.GEMINI_API_KEY;
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: `Explain "${promptText}" using a ${style} style. Keep it clear for a student.` }] }]
+        })
       }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return res.status(response.status).json({ error: data.error?.message || 'API Error' });
     }
 
-    if (responseText) {
-      return res.json({ result: responseText });
-    }
+    const reply = data.candidates[0].content.parts[0].text;
+    res.json({ result: reply });
 
-    throw lastError || new Error('All model fallbacks failed.');
   } catch (error) {
-    console.error('API Final Error:', error);
+    console.error('API Error:', error);
     res.status(500).json({ error: error.message || 'Internal Server Error' });
   }
 });
