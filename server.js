@@ -1,3 +1,4 @@
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -5,29 +6,31 @@ const { GoogleGenAI } = require('@google/genai');
 
 const app = express();
 
-// Middleware
+// Enable CORS and JSON body parsing
 app.use(cors());
 app.use(express.json());
 
-// Serve static frontend files
+// Serve static frontend files (index.html, script.js, style.css)
 app.use(express.static(path.join(__dirname, './')));
 
-// Initialize Google Gen AI client
+// Initialize Google Gen AI client with API key from Render environment variables
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-// API Route for concept explanations
+// API Endpoint for generating concept explanations
 app.post('/api/explain', async (req, res) => {
   try {
-    const { prompt, style } = req.body;
+    // Check multiple possible frontend payload keys to prevent missing prompt errors
+    const promptText = req.body.prompt || req.body.concept || req.body.topic || req.body.text;
+    const style = req.body.style || 'meme';
 
-    if (!prompt) {
+    if (!promptText) {
       return res.status(400).json({ error: 'Prompt is required' });
     }
 
-    // Using an active supported model tag
+    // Call Gemini model using active stable model tag
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
-      contents: `Explain "${prompt}" using a ${style || 'meme'} style. Keep it clear, engaging, and structured for a student.`,
+      contents: `Explain "${promptText}" using a ${style} style. Keep it concise, clear, engaging, and easy to understand for a student.`,
     });
 
     res.json({ result: response.text });
@@ -37,12 +40,12 @@ app.post('/api/explain', async (req, res) => {
   }
 });
 
-// Fallback route for static web app
+// Fallback route to serve index.html for web application routes
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Bind to Render's dynamic port
+// Bind to dynamic port assigned by Render
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
