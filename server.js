@@ -22,7 +22,6 @@ app.post('/api/explain', async (req, res) => {
       return res.status(500).json({ error: 'GEMINI_API_KEY is not set in environment variables' });
     }
 
-    // Updated model endpoint string to gemini-3.6-flash
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
 
     const response = await fetch(url, {
@@ -31,7 +30,7 @@ app.post('/api/explain', async (req, res) => {
       body: JSON.stringify({
         contents: [{
           parts: [{
-            text: `Explain "${promptText}" using a ${style} style. Keep it clear, concise, engaging, and structured for a student.`
+            text: `Explain "${promptText}" using a ${style} style. Keep the entire answer under 3-4 sentences total. Do NOT include full code blocks or unnecessary subheadings. Be punchy and direct for a quick read.`
           }]
         }]
       })
