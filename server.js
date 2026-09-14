@@ -22,7 +22,8 @@ app.post('/api/explain', async (req, res) => {
       return res.status(500).json({ error: 'GEMINI_API_KEY is not set in environment variables' });
     }
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    // Updated model endpoint string to gemini-3.6-flash
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
 
     const response = await fetch(url, {
       method: 'POST',
