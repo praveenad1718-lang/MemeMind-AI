@@ -10,13 +10,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const repoPillsContainer = document.getElementById('repoPills');
   const addRepoBtn = document.getElementById('addRepoBtn');
+  const deleteRepoBtn = document.getElementById('deleteRepoBtn');
   const activeRepoNameEl = document.getElementById('activeRepoName');
   const repoSavedListEl = document.getElementById('repoSavedList');
 
   let selectedStyle = 'meme';
   let isCoolingDown = false;
 
-  // LocalStorage Repositories
+  // LocalStorage Repositories Setup
   let repositories = JSON.parse(localStorage.getItem('memeMindRepos')) || ['Python', 'Java', 'C++', 'English'];
   let activeRepo = repositories[0] || 'Python';
   let repoData = JSON.parse(localStorage.getItem('memeMindRepoData')) || {};
@@ -45,13 +46,16 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    items.forEach((item) => {
+    items.forEach((item, index) => {
       const card = document.createElement('div');
       card.className = 'saved-item-card';
       card.innerHTML = `
         <div class="saved-item-header">
           <strong>${item.prompt}</strong>
-          <span class="badge">${item.style}</span>
+          <div class="saved-actions">
+            <span class="badge">${item.style}</span>
+            <button class="delete-btn" onclick="deleteSavedItem(${index})">🗑️ Delete</button>
+          </div>
         </div>
         <p class="saved-item-text">${item.response}</p>
       `;
@@ -59,6 +63,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Global Delete Chat Handler
+  window.deleteSavedItem = function(index) {
+    if (repoData[activeRepo]) {
+      repoData[activeRepo].splice(index, 1);
+      localStorage.setItem('memeMindRepoData', JSON.stringify(repoData));
+      renderSavedItems();
+    }
+  };
+
+  // Create Repo Handler
   if (addRepoBtn) {
     addRepoBtn.addEventListener('click', () => {
       const newRepo = prompt('Enter new repository name (e.g. Web-Dev, Physics):');
@@ -75,6 +89,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Delete Entire Active Repo Handler
+  if (deleteRepoBtn) {
+    deleteRepoBtn.addEventListener('click', () => {
+      if (repositories.length <= 1) {
+        alert("At least one repository must remain!");
+        return;
+      }
+
+      if (confirm(`Are you sure you want to delete the "${activeRepo}" repository and all its saved chats?`)) {
+        delete repoData[activeRepo];
+        localStorage.setItem('memeMindRepoData', JSON.stringify(repoData));
+
+        repositories = repositories.filter(r => r !== activeRepo);
+        activeRepo = repositories[0];
+        localStorage.setItem('memeMindRepos', JSON.stringify(repositories));
+
+        renderRepos();
+        renderSavedItems();
+      }
+    });
+  }
+
+  // Style Selection Handler
   const styleCards = document.querySelectorAll('.style-card, [data-style]');
   styleCards.forEach(card => {
     card.addEventListener('click', () => {
@@ -94,6 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Core Request Function
   async function requestExplanation(promptText) {
     if (!promptText.trim()) return;
 
@@ -200,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Three.js Background Initialization
+  // Three.js 3D Background Initialization
   const bgCanvas = document.getElementById('bg');
   if (bgCanvas && typeof THREE !== 'undefined') {
     const scene = new THREE.Scene();
