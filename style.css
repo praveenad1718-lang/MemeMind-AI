@@ -89,6 +89,11 @@ body {
   align-items: center;
 }
 
+.repo-btn-group {
+  display: flex;
+  gap: 8px;
+}
+
 .repo-pills {
   display: flex;
   gap: 10px;
@@ -136,12 +141,34 @@ body {
   margin-bottom: 4px;
 }
 
+.saved-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .badge {
   background: rgba(99, 102, 241, 0.2);
   color: #a5b4fc;
   padding: 2px 8px;
   border-radius: 4px;
   font-size: 11px;
+}
+
+.delete-btn {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.delete-btn:hover {
+  background: rgba(239, 68, 68, 0.5);
+  color: #fff;
 }
 
 .saved-item-text {
@@ -209,6 +236,20 @@ textarea {
 .save-btn {
   background: #059669;
   border: none;
+}
+
+.danger-btn {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.danger-btn:hover {
+  background: rgba(239, 68, 68, 0.6);
+  color: #fff;
 }
 
 .card-header {
