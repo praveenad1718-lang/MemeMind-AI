@@ -30,7 +30,7 @@ app.post('/api/explain', async (req, res) => {
       body: JSON.stringify({
         contents: [{
           parts: [{
-            text: `Explain "${promptText}" using a ${style} style. Keep the entire answer under 3-4 sentences total. Do NOT include full code blocks or unnecessary subheadings. Be punchy and direct for a quick read.`
+            text: `Explain "${promptText}" using a ${style} style. Keep the explanation strictly under 3-4 short sentences. Do NOT include full code blocks or subheadings. Be concise and punchy.`
           }]
         }]
       })
@@ -39,6 +39,9 @@ app.post('/api/explain', async (req, res) => {
     const data = await response.json();
 
     if (!response.ok) {
+      if (response.status === 429) {
+        return res.status(429).json({ error: 'Rate limit reached. Please wait a moment.' });
+      }
       return res.status(response.status).json({ error: data.error?.message || 'API Error' });
     }
 
