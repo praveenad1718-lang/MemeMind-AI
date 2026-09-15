@@ -3,105 +3,104 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MEMEMIND — Learn. Imagine. Remember.</title>
+  <title>MemeMind AI - Learn. Imagine. Remember.</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <div class="badge-row">
-    <div class="badge brand">🧠 MEMEMIND <span class="ai-tag">AI</span></div>
-    <div class="badge powered">✨ AI POWERED LEARNING</div>
-  </div>
+  <!-- 3D Canvas Background -->
+  <canvas id="bg"></canvas>
 
-  <h1 class="headline">
-    Learn. <span class="grad-orange">Imagine.</span> <span class="grad-blue">Remember.</span>
-  </h1>
-  <p class="subhead">Turn complex concepts into fun and memorable learning experiences.</p>
+  <div class="app-container">
+    <header class="top-bar">
+      <div class="pill-badge">🧠 MEMEMIND AI</div>
+      <div class="pill-badge spark">✨ AI POWERED LEARNING</div>
+    </header>
 
-  <!-- 3D Canvas -->
-  <div id="canvas-container"></div>
+    <main class="content-wrapper">
+      <h1 class="main-title">Learn. Imagine. Remember.</h1>
+      <p class="subtitle">Turn complex concepts into fun and memorable learning experiences.</p>
 
-  <!-- SUBJECT REPOSITORY SECTION -->
-  <div class="card repository-card">
-    <div class="card-header">
-      <div class="icon-box repo">📚</div>
-      <div>
-        <h2>My Learning Repository</h2>
-        <p class="muted">Choose a subject and keep your explanations for revision.</p>
+      <!-- GitHub-Style Repository Hub -->
+      <div class="card repo-card">
+        <div class="repo-header">
+          <div class="repo-title-box">
+            <span class="icon">📁</span>
+            <div>
+              <h3>Learning Repositories</h3>
+              <p class="muted">Organize saved explanations by subject or topic.</p>
+            </div>
+          </div>
+          <button id="addRepoBtn" class="secondary-btn">+ New Repo</button>
+        </div>
+
+        <div id="repoPills" class="repo-pills"></div>
+
+        <div class="repo-saved-section">
+          <h4>Repository: <span id="activeRepoName">Java</span></h4>
+          <div id="repoSavedList" class="repo-saved-list">
+            <p class="placeholder">No saved explanations in this repo yet.</p>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <div class="subject-row">
-      <button class="subject-btn active" data-subject="Python">🐍 Python</button>
-      <button class="subject-btn" data-subject="Java">☕ Java</button>
-      <button class="subject-btn" data-subject="C">💻 C</button>
-      <button class="subject-btn" data-subject="English">🇬🇧 English</button>
-    </div>
-
-    <div class="repository-tools">
-      <input id="historySearch" type="text" placeholder="🔍 Search saved topics..." />
-      <button id="refreshHistoryBtn" class="small-btn">↻ Refresh</button>
-    </div>
-
-    <div id="historyList" class="history-list">
-      <p class="placeholder">No saved chats yet. Generate an explanation to start your repository.</p>
-    </div>
-  </div>
-
-  <!-- INPUT & STYLE GENERATOR -->
-  <div class="card">
-    <div class="card-header">
-      <div class="icon-box">💡</div>
-      <div>
-        <h2>What's on your mind?</h2>
+      <!-- Main Input Card -->
+      <div class="card prompt-card">
+        <h3>💡 What's on your mind?</h3>
         <p class="muted">Enter a concept or doubt you want to understand.</p>
+
+        <textarea id="promptInput" placeholder="e.g., Inheritance in Java, Quantum Physics, Photosynthesis..."></textarea>
+
+        <p class="section-label">🧠 Choose your learning style</p>
+        <div class="style-grid">
+          <div class="style-card active" data-style="meme">
+            <span class="icon">😂</span>
+            <div>
+              <strong>Meme</strong>
+              <p>Learn with humor</p>
+            </div>
+          </div>
+          <div class="style-card" data-style="story">
+            <span class="icon">📖</span>
+            <div>
+              <strong>Story</strong>
+              <p>Learn through stories</p>
+            </div>
+          </div>
+          <div class="style-card" data-style="real">
+            <span class="icon">🌍</span>
+            <div>
+              <strong>Real Life</strong>
+              <p>Learn with examples</p>
+            </div>
+          </div>
+        </div>
+
+        <button id="generateBtn" class="primary-btn">✨ Generate Learning →</button>
       </div>
-    </div>
-    <textarea id="conceptInput" placeholder="e.g. what is inheritance in java"></textarea>
 
-    <h3 class="section-title" style="margin-top: 20px;">🎨 Choose your learning style</h3>
-    <div class="style-row">
-      <button class="style-btn active" data-style="meme">
-        <span class="style-emoji">😂</span>
-        <span class="style-title">Meme</span>
-        <span class="style-sub">Learn with humor</span>
-      </button>
-      <button class="style-btn" data-style="story">
-        <span class="style-emoji">📖</span>
-        <span class="style-title">Story</span>
-        <span class="style-sub">Learn through stories</span>
-      </button>
-      <button class="style-btn" data-style="reallife">
-        <span class="style-emoji">🌍</span>
-        <span class="style-title">Real Life</span>
-        <span class="style-sub">Learn with examples</span>
-      </button>
-    </div>
+      <!-- Output Card -->
+      <div class="card chat-card">
+        <div class="card-header">
+          <div class="icon-box robot">🤖</div>
+          <div>
+            <h2>MEMEMIND</h2>
+            <p class="muted">Your AI learning experience</p>
+          </div>
+          <div class="status" id="statusDot">• AI READY</div>
+        </div>
 
-    <button id="generateBtn" class="generate-btn">✨ Generate Learning →</button>
-  </div>
+        <div id="answerBox" class="answer-box">
+          <p class="placeholder">Your explanation will show up here...</p>
+        </div>
 
-  <!-- OUTPUT & CONVERSATION CARD -->
-  <div class="card chat-card">
-    <div class="card-header">
-      <div class="icon-box robot">🤖</div>
-      <div>
-        <h2>MEMEMIND</h2>
-        <p class="muted">Your AI learning experience</p>
+        <div id="followupRow" class="followup-row hidden">
+          <input id="followupInput" type="text" placeholder="What part didn't make sense?" />
+          <button id="followupBtn">💬 Explain differently</button>
+          <button id="saveToRepoBtn" class="save-btn">💾 Save to Repo</button>
+        </div>
       </div>
-      <div class="status" id="statusDot">● AI READY</div>
-    </div>
-
-    <div class="current-chat-meta" id="currentChatMeta"></div>
-
-    <div id="answerBox" class="answer-box">
-      <p class="placeholder">Your explanation will show up here…</p>
-    </div>
-
-    <div id="followupRow" class="followup-row hidden">
-      <input id="followupInput" type="text" placeholder="What part didn't make sense?" />
-      <button id="followupBtn">🔁 Explain differently</button>
-    </div>
+    </main>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
