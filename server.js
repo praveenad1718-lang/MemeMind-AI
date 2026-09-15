@@ -22,35 +22,40 @@ app.post('/api/explain', async (req, res) => {
       return res.status(500).json({ error: 'GEMINI_API_KEY is not set in environment variables' });
     }
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
+    // List models to try sequentially in case of rate limits or high demand
+    const models = ['gemini-3.6-flash', 'gemini-1.5-flash'];
+    let lastError = null;
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: `Explain "${promptText}" using a ${style} style. Keep the explanation strictly under 3-4 short sentences. Do NOT include full code blocks or subheadings. Be concise and punchy.`
+    for (const model of models) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: `Explain "${promptText}" using a ${style} style. Keep the entire explanation strictly under 3-4 short sentences. Do NOT include full code blocks or subheadings. Be concise and punchy.`
+            }]
           }]
-        }]
-      })
-    });
+        })
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (!response.ok) {
-      if (response.status === 429) {
-        return res.status(429).json({ error: 'Rate limit reached. Please wait a moment.' });
+      if (response.ok) {
+        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (reply) {
+          return res.json({ result: reply });
+        }
+      } else {
+        lastError = data.error?.message || 'API Error';
+        console.warn(`Model ${model} failed with: ${lastError}. Attempting fallback...`);
       }
-      return res.status(response.status).json({ error: data.error?.message || 'API Error' });
     }
 
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!reply) {
-      return res.status(500).json({ error: 'No content returned from AI model' });
-    }
-
-    res.json({ result: reply });
+    // If all models in the loop fail
+    res.status(429).json({ error: lastError || 'Google AI servers are currently busy. Please retry in 30 seconds.' });
 
   } catch (error) {
     console.error('API Error:', error);
