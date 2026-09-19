@@ -25,7 +25,7 @@
       pointer-events: none;
     }
     .main-card {
-      background: rgba(15, 23, 42, 0.70);
+      background: rgba(15, 23, 42, 0.75);
       backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 16px;
@@ -157,7 +157,7 @@
       <button id="submitBtn" class="btn btn-gradient btn-lg w-100" onclick="handleGenerate()">✨ Generate Learning</button>
     </div>
 
-    <!-- Output Result Section -->
+    <!-- Output Result Section with Re-ask / Doubts Feature -->
     <div class="main-card p-4 mb-4 d-none" id="outputCard">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="text-success fw-bold m-0">MEMEMIND RESULT</h5>
@@ -168,7 +168,17 @@
           <button class="btn btn-sm btn-info text-nowrap fw-bold" onclick="saveCurrentResult()">💾 Save</button>
         </div>
       </div>
-      <div id="outputContent" class="output-box p-3 text-white"></div>
+      
+      <div id="outputContent" class="output-box p-3 text-white mb-3"></div>
+
+      <!-- Re-ask / Doubts Section -->
+      <div class="mt-3 pt-3 border-top border-secondary">
+        <label class="form-label text-warning fw-bold small">💬 Have a doubt or want to re-ask a follow-up?</label>
+        <div class="input-group">
+          <input type="text" id="followUpInput" class="form-control bg-dark text-white border-secondary" placeholder="Ask your doubt about this result...">
+          <button class="btn btn-outline-info fw-bold" onclick="handleFollowUp()" id="followUpBtn">Ask Doubt</button>
+        </div>
+      </div>
     </div>
 
     <!-- Repository Saved Items Section -->
@@ -310,6 +320,39 @@
       }
     }
 
+    // Handle Follow-up / Re-ask Doubts
+    async function handleFollowUp() {
+      const doubt = document.getElementById('followUpInput').value.trim();
+      if (!doubt) return alert('Please enter your doubt or follow-up question!');
+
+      const outContent = document.getElementById('outputContent');
+      const followUpBtn = document.getElementById('followUpBtn');
+
+      outContent.innerHTML += `<hr class="border-secondary"><p class="text-warning mb-1"><strong>Q (Doubt):</strong> ${doubt}</p>`;
+      outContent.innerHTML += `<div class="spinner-border spinner-border-sm text-info" role="status"></div> Thinking about your doubt...`;
+      followUpBtn.disabled = true;
+
+      try {
+        const res = await fetch(`/api/${activeTab}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: `Context: ${currentResult}\n\nDoubt/Follow-up: ${doubt}`, style: selectedStyle })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Server Error');
+
+        currentResult += `\n\nDoubt: ${doubt}\nAnswer: ${data.result}`;
+        outContent.innerHTML = `<div style="white-space: pre-wrap; line-height: 1.6;">${currentResult}</div>`;
+        document.getElementById('followUpInput').value = '';
+
+      } catch (err) {
+        outContent.innerHTML += `<br><span class="text-danger">Error: ${err.message}</span>`;
+      } finally {
+        followUpBtn.disabled = false;
+      }
+    }
+
     function saveCurrentResult() {
       if (!currentResult) return alert('No result to save!');
       const selectedFolder = document.getElementById('saveFolderSelect').value;
@@ -391,7 +434,6 @@
 
     scene.add(brainGroup);
     
-    // Moved camera closer so the brain looks huge and clear in the background
     camera.position.z = 18;
     brainGroup.position.y = 1;
 
