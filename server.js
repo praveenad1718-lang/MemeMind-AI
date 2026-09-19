@@ -8,14 +8,14 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, './')));
 
-// Universal Hugging Face Router Call Helper
+// Universal Hugging Face Router Helper
 async function callHuggingFace(promptText) {
   const token = process.env.HF_TOKEN;
   if (!token) {
     throw new Error("HF_TOKEN environment variable is missing on Render.");
   }
 
-  // Modern HF Router endpoint with active serverless provider routing
+  // Uses Llama 3.1 8B with automatic provider routing (:fastest)
   const response = await fetch("https://router.huggingface.co/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -23,7 +23,7 @@ async function callHuggingFace(promptText) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      model: "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B", // Fully supported on HF free router
+      model: "meta-llama/Llama-3.1-8B-Instruct:fastest",
       messages: [
         { role: "system", content: "You are an educational assistant for MemeMind AI." },
         { role: "user", content: promptText }
