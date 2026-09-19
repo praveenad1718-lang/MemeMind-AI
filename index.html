@@ -3,110 +3,177 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MemeMind AI - Learn. Imagine. Remember.</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>MemeMind AI - Learn. Imagine. Code.</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background-color: #0b0f19;
+      color: #e2e8f0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+    }
+    .card-custom {
+      background-color: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+    .btn-gradient {
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      border: none;
+      color: white;
+      font-weight: 600;
+    }
+    .btn-gradient:hover {
+      background: linear-gradient(135deg, #4f46e5, #9333ea);
+      color: white;
+    }
+    .nav-pills .nav-link {
+      color: #9ca3af;
+      background-color: #1f2937;
+      margin-right: 8px;
+    }
+    .nav-pills .nav-link.active {
+      background-color: #6366f1;
+      color: #ffffff;
+    }
+    .status-badge {
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background-color: #065f46;
+      color: #34d399;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+  </style>
 </head>
-<body>
+<body class="py-5">
 
-  <!-- 3D Canvas Background -->
-  <canvas id="bg"></canvas>
+  <div class="container" style="max-width: 800px;">
+    <!-- Header -->
+    <div class="text-center mb-4">
+      <h1 class="fw-bold text-white">MemeMind <span class="text-primary">AI</span></h1>
+      <p class="text-muted">Interactive Learning Assistant Powered by Hugging Face</p>
+    </div>
 
-  <div class="app-container">
-    <header class="top-bar">
-      <div class="pill-badge">🧠 MEMEMIND AI</div>
-      <div class="pill-badge spark">✨ AI POWERED LEARNING</div>
-    </header>
+    <!-- Feature Navigation Tabs -->
+    <ul class="nav nav-pills justify-content-center mb-4" id="featureTabs" role="tablist">
+      <li class="nav-item">
+        <button class="nav-link active" id="explain-tab" data-bs-toggle="pill" data-bs-target="#explain-pane">💡 Explain</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" id="debug-tab" data-bs-toggle="pill" data-bs-target="#debug-pane">🐞 Debug Code</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" id="quiz-tab" data-bs-toggle="pill" data-bs-target="#quiz-pane">📝 Quiz Master</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" id="roadmap-tab" data-bs-toggle="pill" data-bs-target="#roadmap-pane">🗺️ Roadmap</button>
+      </li>
+    </ul>
 
-    <main class="content-wrapper">
-      <h1 class="main-title">Learn. Imagine. Remember.</h1>
-      <p class="subtitle">Turn complex concepts into fun and memorable learning experiences.</p>
-
-      <!-- GitHub-Style Repository Hub -->
-      <div class="card repo-card">
-        <div class="repo-header">
-          <div class="repo-title-box">
-            <span class="icon">📁</span>
-            <div>
-              <h3>Learning Repositories</h3>
-              <p class="muted">Organize saved explanations by subject or topic.</p>
-            </div>
-          </div>
-          <div class="repo-btn-group">
-            <button id="addRepoBtn" class="secondary-btn">+ New Repo</button>
-            <button id="deleteRepoBtn" class="danger-btn">🗑️ Delete Repo</button>
-          </div>
-        </div>
-
-        <div id="repoPills" class="repo-pills"></div>
-
-        <div class="repo-saved-section">
-          <h4>Repository: <span id="activeRepoName">Java</span></h4>
-          <div id="repoSavedList" class="repo-saved-list">
-            <p class="placeholder">No saved explanations in this repo yet.</p>
-          </div>
-        </div>
+    <!-- Tab Content Panels -->
+    <div class="tab-content card-custom p-4 mb-4" id="tabContent">
+      
+      <!-- 1. EXPLAIN PANE -->
+      <div class="tab-pane fade show active" id="explain-pane">
+        <label class="form-label fw-bold">What concept do you want to learn?</label>
+        <textarea id="explainInput" class="form-control bg-dark text-white border-secondary mb-3" rows="3" placeholder="e.g. Python Keywords, Java Inheritance, REST APIs"></textarea>
+        
+        <label class="form-label fw-bold">Choose Explanation Style:</label>
+        <select id="explainStyle" class="form-select bg-dark text-white border-secondary mb-3">
+          <option value="meme">Meme (Humorous & Punchy)</option>
+          <option value="story">Story (Metaphors & Scenarios)</option>
+          <option value="real-life">Real Life (Practical Examples)</option>
+        </select>
+        
+        <button onclick="handleRequest('/api/explain', { prompt: document.getElementById('explainInput').value, style: document.getElementById('explainStyle').value })" class="btn btn-gradient w-100 py-2">
+          ✨ Generate Explanation
+        </button>
       </div>
 
-      <!-- Main Input Card -->
-      <div class="card prompt-card">
-        <h3>💡 What's on your mind?</h3>
-        <p class="muted">Enter a concept or doubt you want to understand.</p>
-
-        <textarea id="promptInput" placeholder="e.g., Inheritance in Java, Quantum Physics, Photosynthesis..."></textarea>
-
-        <p class="section-label">🧠 Choose your learning style</p>
-        <div class="style-grid">
-          <div class="style-card active" data-style="meme">
-            <span class="icon">😂</span>
-            <div>
-              <strong>Meme</strong>
-              <p>Learn with humor</p>
-            </div>
-          </div>
-          <div class="style-card" data-style="story">
-            <span class="icon">📖</span>
-            <div>
-              <strong>Story</strong>
-              <p>Learn through stories</p>
-            </div>
-          </div>
-          <div class="style-card" data-style="real">
-            <span class="icon">🌍</span>
-            <div>
-              <strong>Real Life</strong>
-              <p>Learn with examples</p>
-            </div>
-          </div>
-        </div>
-
-        <button id="generateBtn" class="primary-btn">✨ Generate Learning →</button>
+      <!-- 2. DEBUG PANE -->
+      <div class="tab-pane fade" id="debug-pane">
+        <label class="form-label fw-bold">Paste buggy code snippet:</label>
+        <textarea id="debugInput" class="form-control bg-dark text-white border-secondary mb-3 font-monospace" rows="5" placeholder="print('Hello World'"></textarea>
+        
+        <button onclick="handleRequest('/api/debug', { code: document.getElementById('debugInput').value })" class="btn btn-gradient w-100 py-2">
+          🔍 Debug My Code
+        </button>
       </div>
 
-      <!-- Output Card -->
-      <div class="card chat-card">
-        <div class="card-header">
-          <div class="icon-box robot">🤖</div>
-          <div>
-            <h2>MEMEMIND</h2>
-            <p class="muted">Your AI learning experience</p>
-          </div>
-          <div class="status" id="statusDot">• AI READY</div>
-        </div>
-
-        <div id="answerBox" class="answer-box">
-          <p class="placeholder">Your explanation will show up here...</p>
-        </div>
-
-        <div id="followupRow" class="followup-row hidden">
-          <input id="followupInput" type="text" placeholder="What part didn't make sense?" />
-          <button id="followupBtn">💬 Explain differently</button>
-          <button id="saveToRepoBtn" class="save-btn">💾 Save to Repo</button>
-        </div>
+      <!-- 3. QUIZ PANE -->
+      <div class="tab-pane fade" id="quiz-pane">
+        <label class="form-label fw-bold">Enter topic to generate quiz:</label>
+        <input type="text" id="quizInput" class="form-control bg-dark text-white border-secondary mb-3" placeholder="e.g. JavaScript Async/Await" />
+        
+        <button onclick="handleRequest('/api/quiz', { concept: document.getElementById('quizInput').value })" class="btn btn-gradient w-100 py-2">
+          🎯 Create Quiz
+        </button>
       </div>
-    </main>
+
+      <!-- 4. ROADMAP PANE -->
+      <div class="tab-pane fade" id="roadmap-pane">
+        <label class="form-label fw-bold">Enter topic for learning roadmap:</label>
+        <input type="text" id="roadmapInput" class="form-control bg-dark text-white border-secondary mb-3" placeholder="e.g. Full-Stack Web Development" />
+        
+        <button onclick="handleRequest('/api/roadmap', { concept: document.getElementById('roadmapInput').value })" class="btn btn-gradient w-100 py-2">
+          🗺️ Generate Learning Roadmap
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Output Section -->
+    <div class="card-custom p-4">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="fw-bold">MEMEMIND OUTPUT</span>
+        <span id="statusBadge" class="status-badge">READY</span>
+      </div>
+      <div id="outputContainer" class="p-3 bg-dark border border-secondary rounded text-light">
+        <p class="text-muted m-0">Generated response will appear here...</p>
+      </div>
+    </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    async function handleRequest(endpoint, bodyData) {
+      const outputContainer = document.getElementById('outputContainer');
+      const statusBadge = document.getElementById('statusBadge');
+      
+      outputContainer.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Thinking...';
+      statusBadge.innerText = 'GENERATING';
+      statusBadge.style.backgroundColor = '#854d0e';
+      statusBadge.style.color = '#fef08a';
+
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bodyData)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to fetch AI response.');
+        }
+
+        outputContainer.innerHTML = `<pre class="m-0 text-light">${data.result}</pre>`;
+        statusBadge.innerText = 'AI READY';
+        statusBadge.style.backgroundColor = '#065f46';
+        statusBadge.style.color = '#34d399';
+      } catch (error) {
+        outputContainer.innerHTML = `<span class="text-danger">⚠️ Error: ${error.message}</span>`;
+        statusBadge.innerText = 'ERROR';
+        statusBadge.style.backgroundColor = '#991b1b';
+        statusBadge.style.color = '#fca5a5';
+      }
+    }
+  </script>
 </body>
 </html>
