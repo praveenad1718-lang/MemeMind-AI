@@ -22,7 +22,6 @@
       overflow-x: hidden;
     }
 
-    /* 3D Canvas Background Positioning */
     #bg3dCanvas {
       position: fixed;
       top: 0;
@@ -136,13 +135,19 @@
     }
   </style>
 </head>
-<body class="py-5">
+<body class="py-4">
 
-  <!-- 3D Canvas Container -->
+  <!-- 3D Canvas Background -->
   <canvas id="bg3dCanvas"></canvas>
 
   <div class="container" style="max-width: 850px;">
     
+    <!-- Title & Tagline -->
+    <div class="text-center mb-4">
+      <h1 class="fw-bold display-6 mb-1" style="background: linear-gradient(135deg, #a855f7, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">MemeMind AI</h1>
+      <p class="text-muted small">Learn. Imagine. Code.</p>
+    </div>
+
     <!-- Navigation Tabs -->
     <ul class="nav nav-pills justify-content-center mb-4" id="featureTabs" role="tablist">
       <li class="nav-item">
@@ -167,7 +172,9 @@
         <h5 class="fw-bold mb-3">💡 What's on your mind?</h5>
         <textarea id="explainInput" class="form-control mb-4" rows="3" placeholder="Enter a concept or doubt you want to understand..."></textarea>
         
+        <!-- Style selection label -->
         <label class="form-label text-muted small mb-2">Choose your learning style</label>
+        
         <div class="row g-3 mb-4">
           <div class="col-4">
             <div class="style-option selected" onclick="selectStyle(this, 'meme')">
@@ -227,13 +234,11 @@
 
   </div>
 
-  <!-- Dependencies -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-  <!-- Application & 3D Script -->
   <script>
-    // 3D Background Mesh setup
+    // 3D Wireframe Animation
     const canvas = document.getElementById('bg3dCanvas');
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -263,7 +268,7 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // Frontend State & Functions
+    // Frontend logic
     let selectedStyle = 'meme';
 
     function selectStyle(element, style) {
