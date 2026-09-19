@@ -4,170 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MemeMind AI - Learn. Imagine. Code.</title>
+  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <style>
-    :root {
-      --bg-color: #0b0f19;
-      --card-bg: rgba(17, 24, 39, 0.90);
-      --border-color: rgba(255, 255, 255, 0.15);
-      --primary-purple: #8b5cf6;
-      --accent-blue: #38bdf8;
-    }
-
-    body {
-      background-color: var(--bg-color);
-      color: #f8fafc;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    /* 3D Canvas Background */
-    #bg3dCanvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 0;
-      pointer-events: none;
-    }
-
-    .app-container {
-      position: relative;
-      z-index: 10;
-    }
-
-    .main-card {
-      background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-    }
-
-    .nav-pills {
-      gap: 12px;
-    }
-
-    .nav-pills .nav-link {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-color);
-      color: #cbd5e1;
-      border-radius: 12px;
-      padding: 12px 20px;
-      font-weight: 600;
-      transition: all 0.2s ease;
-    }
-
-    .nav-pills .nav-link:hover {
-      background: rgba(255, 255, 255, 0.12);
-      color: #ffffff;
-    }
-
-    .nav-pills .nav-link.active {
-      background: rgba(139, 92, 246, 0.25);
-      border-color: var(--primary-purple);
-      color: #ffffff;
-      box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
-    }
-
-    /* Learning Style Cards with Vibrant Colors */
-    .style-option {
-      cursor: pointer;
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 14px;
-      background: rgba(255, 255, 255, 0.03);
-      transition: all 0.2s ease;
-    }
-
-    .style-option:hover, .style-option.selected {
-      border-color: var(--accent-blue);
-      background: rgba(56, 189, 248, 0.12);
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
-    }
-
-    .style-title {
-      font-weight: 700;
-      color: #ffffff;
-      font-size: 1rem;
-    }
-
-    .style-desc {
-      font-size: 0.85rem;
-      color: #94a3b8; /* Clear visible light blue-gray */
-      font-weight: 500;
-    }
-
-    .btn-action {
-      background: linear-gradient(135deg, #6366f1, #a855f7);
-      border: none;
-      color: #ffffff;
-      font-weight: 700;
-      border-radius: 10px;
-      padding: 14px;
-      font-size: 1.05rem;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .btn-action:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(168, 85, 247, 0.4);
-      color: #ffffff;
-    }
-
-    .status-badge {
-      font-size: 0.75rem;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
-
-    .badge-ready {
-      background: rgba(16, 185, 129, 0.15);
-      color: #34d399;
-      border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-
-    .badge-loading {
-      background: rgba(245, 158, 11, 0.15);
-      color: #fbbf24;
-      border: 1px solid rgba(245, 158, 11, 0.3);
-    }
-
-    .badge-error {
-      background: rgba(239, 68, 68, 0.15);
-      color: #f87171;
-      border: 1px solid rgba(239, 68, 68, 0.3);
-    }
-
-    .form-control, .form-control:focus {
-      background: rgba(0, 0, 0, 0.5);
-      border: 1px solid var(--border-color);
-      color: #ffffff;
-      border-radius: 10px;
-    }
-
-    .form-control::placeholder {
-      color: #64748b;
-    }
-
-    .section-label {
-      color: #38bdf8;
-      font-weight: 600;
-      font-size: 0.9rem;
-      letter-spacing: 0.5px;
-    }
-
-    pre {
-      white-space: pre-wrap;
-      word-break: break-word;
-      font-size: 0.95rem;
-      line-height: 1.6;
-    }
-  </style>
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="py-4">
 
@@ -178,11 +18,11 @@
     
     <!-- Title & Tagline -->
     <div class="text-center mb-4">
-      <h1 class="fw-bold display-5 mb-1" style="background: linear-gradient(135deg, #c084fc, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">MemeMind AI</h1>
+      <h1 class="fw-bold display-5 mb-1 title-gradient">MemeMind AI</h1>
       <p class="fw-semibold text-light fs-6 mb-0">Learn. Imagine. Code.</p>
     </div>
 
-    <!-- Navigation Tabs -->
+    <!-- Navigation Tabs (5 Features) -->
     <ul class="nav nav-pills justify-content-center mb-4" id="featureTabs" role="tablist">
       <li class="nav-item">
         <button class="nav-link active" id="explain-tab" data-bs-toggle="pill" data-bs-target="#explain-pane">💡 Explain</button>
@@ -196,6 +36,9 @@
       <li class="nav-item">
         <button class="nav-link" id="roadmap-tab" data-bs-toggle="pill" data-bs-target="#roadmap-pane">🗺️ Roadmap</button>
       </li>
+      <li class="nav-item">
+        <button class="nav-link" id="repo-tab" data-bs-toggle="pill" data-bs-target="#repo-pane">📁 Repository</button>
+      </li>
     </ul>
 
     <!-- Input Card -->
@@ -206,7 +49,6 @@
         <h5 class="fw-bold mb-3 text-white">💡 What's on your mind?</h5>
         <textarea id="explainInput" class="form-control mb-4" rows="3" placeholder="Enter a concept or doubt you want to understand..."></textarea>
         
-        <!-- Style selection label -->
         <label class="form-label section-label mb-2">CHOOSE YOUR LEARNING STYLE</label>
         
         <div class="row g-3 mb-4">
@@ -254,6 +96,13 @@
         <button onclick="runRoadmap()" class="btn btn-action w-100">🧭 Generate Roadmap →</button>
       </div>
 
+      <!-- 5. REPOSITORY -->
+      <div class="tab-pane fade" id="repo-pane">
+        <h5 class="fw-bold mb-3 text-white">📁 Search Repository</h5>
+        <input type="text" id="repoInput" class="form-control mb-4" placeholder="Enter topic or code concept to search saved items..." />
+        <button onclick="runRepo()" class="btn btn-action w-100">🔍 Search Saved Topics →</button>
+      </div>
+
     </div>
 
     <!-- Output Card -->
@@ -261,110 +110,17 @@
       <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="fw-bold text-white">MEMEMIND <span id="statusBadge" class="status-badge badge-ready">• AI READY</span></div>
       </div>
-      <div id="outputContainer" class="p-3 rounded" style="background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color);">
+      <div id="outputContainer" class="p-3 rounded output-box">
         <p class="text-light m-0">Your AI learning experience will appear here...</p>
       </div>
     </div>
 
   </div>
 
+  <!-- Dependencies -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-  <script>
-    // 3D Background setup
-    const canvas = document.getElementById('bg3dCanvas');
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
-
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
-
-    const geometry = new THREE.TorusKnotGeometry(12, 3, 100, 16);
-    const material = new THREE.MeshBasicMaterial({ color: 0x8b5cf6, wireframe: true, opacity: 0.08, transparent: true });
-    const torusKnot = new THREE.Mesh(geometry, material);
-    scene.add(torusKnot);
-
-    camera.position.z = 50; // Shifted back to avoid text overlap
-
-    function animate() {
-      requestAnimationFrame(animate);
-      torusKnot.rotation.x += 0.002;
-      torusKnot.rotation.y += 0.003;
-      renderer.render(scene, camera);
-    }
-    animate();
-
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-
-    // Frontend State & Handlers
-    let selectedStyle = 'meme';
-
-    function selectStyle(element, style) {
-      document.querySelectorAll('.style-option').forEach(el => el.classList.remove('selected'));
-      element.classList.add('selected');
-      selectedStyle = style;
-    }
-
-    async function handleApiCall(endpoint, bodyData) {
-      const outputContainer = document.getElementById('outputContainer');
-      const statusBadge = document.getElementById('statusBadge');
-
-      outputContainer.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Generating response...';
-      statusBadge.className = 'status-badge badge-loading';
-      statusBadge.innerText = '• GENERATING';
-
-      try {
-        const response = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(bodyData)
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || 'Request failed.');
-        }
-
-        outputContainer.innerHTML = `<pre class="m-0 text-light">${data.result}</pre>`;
-        statusBadge.className = 'status-badge badge-ready';
-        statusBadge.innerText = '• AI READY';
-      } catch (error) {
-        outputContainer.innerHTML = `<span class="text-danger">⚠️ ${error.message}</span>`;
-        statusBadge.className = 'status-badge badge-error';
-        statusBadge.innerText = '• ERROR';
-      }
-    }
-
-    function runExplain() {
-      const prompt = document.getElementById('explainInput').value;
-      if (!prompt) return alert('Please enter a concept.');
-      handleApiCall('/api/explain', { prompt, style: selectedStyle });
-    }
-
-    function runDebug() {
-      const code = document.getElementById('debugInput').value;
-      if (!code) return alert('Please enter code to debug.');
-      handleApiCall('/api/debug', { code });
-    }
-
-    function runQuiz() {
-      const concept = document.getElementById('quizInput').value;
-      if (!concept) return alert('Please enter a quiz topic.');
-      handleApiCall('/api/quiz', { concept });
-    }
-
-    function runRoadmap() {
-      const concept = document.getElementById('roadmapInput').value;
-      if (!concept) return alert('Please enter a roadmap topic.');
-      handleApiCall('/api/roadmap', { concept });
-    }
-  </script>
+  <!-- Custom Logic & 3D Script -->
+  <script src="script.js"></script>
 </body>
 </html>
