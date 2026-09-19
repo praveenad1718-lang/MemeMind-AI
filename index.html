@@ -8,36 +8,42 @@
   <style>
     :root {
       --bg-color: #0b0f19;
-      --card-bg: rgba(17, 24, 39, 0.85);
-      --border-color: rgba(255, 255, 255, 0.08);
-      --primary-purple: #7c3aed;
-      --accent-blue: #3b82f6;
+      --card-bg: rgba(17, 24, 39, 0.90);
+      --border-color: rgba(255, 255, 255, 0.15);
+      --primary-purple: #8b5cf6;
+      --accent-blue: #38bdf8;
     }
 
     body {
       background-color: var(--bg-color);
-      color: #e2e8f0;
+      color: #f8fafc;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       min-height: 100vh;
       overflow-x: hidden;
     }
 
+    /* 3D Canvas Background */
     #bg3dCanvas {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      z-index: -1;
+      z-index: 0;
       pointer-events: none;
+    }
+
+    .app-container {
+      position: relative;
+      z-index: 10;
     }
 
     .main-card {
       background: var(--card-bg);
-      backdrop-filter: blur(12px);
+      backdrop-filter: blur(16px);
       border: 1px solid var(--border-color);
       border-radius: 16px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
     }
 
     .nav-pills {
@@ -45,86 +51,114 @@
     }
 
     .nav-pills .nav-link {
-      background: rgba(255, 255, 255, 0.03);
+      background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border-color);
-      color: #94a3b8;
+      color: #cbd5e1;
       border-radius: 12px;
       padding: 12px 20px;
-      font-weight: 500;
+      font-weight: 600;
       transition: all 0.2s ease;
     }
 
     .nav-pills .nav-link:hover {
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.12);
       color: #ffffff;
     }
 
     .nav-pills .nav-link.active {
-      background: rgba(124, 58, 237, 0.15);
+      background: rgba(139, 92, 246, 0.25);
       border-color: var(--primary-purple);
       color: #ffffff;
+      box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
     }
 
+    /* Learning Style Cards with Vibrant Colors */
     .style-option {
       cursor: pointer;
       border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 12px;
-      background: rgba(255, 255, 255, 0.02);
+      border-radius: 12px;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.03);
       transition: all 0.2s ease;
     }
 
     .style-option:hover, .style-option.selected {
-      border-color: var(--primary-purple);
-      background: rgba(124, 58, 237, 0.1);
+      border-color: var(--accent-blue);
+      background: rgba(56, 189, 248, 0.12);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+    }
+
+    .style-title {
+      font-weight: 700;
+      color: #ffffff;
+      font-size: 1rem;
+    }
+
+    .style-desc {
+      font-size: 0.85rem;
+      color: #94a3b8; /* Clear visible light blue-gray */
+      font-weight: 500;
     }
 
     .btn-action {
       background: linear-gradient(135deg, #6366f1, #a855f7);
       border: none;
-      color: white;
-      font-weight: 600;
+      color: #ffffff;
+      font-weight: 700;
       border-radius: 10px;
-      padding: 12px;
-      transition: opacity 0.2s ease;
+      padding: 14px;
+      font-size: 1.05rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     .btn-action:hover {
-      opacity: 0.9;
-      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(168, 85, 247, 0.4);
+      color: #ffffff;
     }
 
     .status-badge {
       font-size: 0.75rem;
-      padding: 4px 10px;
+      padding: 4px 12px;
       border-radius: 20px;
-      font-weight: 600;
+      font-weight: 700;
       letter-spacing: 0.5px;
     }
 
     .badge-ready {
-      background: rgba(16, 185, 129, 0.1);
-      color: #10b981;
-      border: 1px solid rgba(16, 185, 129, 0.2);
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
     }
 
     .badge-loading {
-      background: rgba(245, 158, 11, 0.1);
-      color: #f59e0b;
-      border: 1px solid rgba(245, 158, 11, 0.2);
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
     }
 
     .badge-error {
-      background: rgba(239, 68, 68, 0.1);
-      color: #ef4444;
-      border: 1px solid rgba(239, 68, 68, 0.2);
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
     }
 
     .form-control, .form-control:focus {
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(0, 0, 0, 0.5);
       border: 1px solid var(--border-color);
       color: #ffffff;
       border-radius: 10px;
+    }
+
+    .form-control::placeholder {
+      color: #64748b;
+    }
+
+    .section-label {
+      color: #38bdf8;
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: 0.5px;
     }
 
     pre {
@@ -140,12 +174,12 @@
   <!-- 3D Canvas Background -->
   <canvas id="bg3dCanvas"></canvas>
 
-  <div class="container" style="max-width: 850px;">
+  <div class="container app-container" style="max-width: 850px;">
     
     <!-- Title & Tagline -->
     <div class="text-center mb-4">
-      <h1 class="fw-bold display-6 mb-1" style="background: linear-gradient(135deg, #a855f7, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">MemeMind AI</h1>
-      <p class="text-muted small">Learn. Imagine. Code.</p>
+      <h1 class="fw-bold display-5 mb-1" style="background: linear-gradient(135deg, #c084fc, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">MemeMind AI</h1>
+      <p class="fw-semibold text-light fs-6 mb-0">Learn. Imagine. Code.</p>
     </div>
 
     <!-- Navigation Tabs -->
@@ -169,29 +203,29 @@
       
       <!-- 1. EXPLAIN -->
       <div class="tab-pane fade show active" id="explain-pane">
-        <h5 class="fw-bold mb-3">💡 What's on your mind?</h5>
+        <h5 class="fw-bold mb-3 text-white">💡 What's on your mind?</h5>
         <textarea id="explainInput" class="form-control mb-4" rows="3" placeholder="Enter a concept or doubt you want to understand..."></textarea>
         
         <!-- Style selection label -->
-        <label class="form-label text-muted small mb-2">Choose your learning style</label>
+        <label class="form-label section-label mb-2">CHOOSE YOUR LEARNING STYLE</label>
         
         <div class="row g-3 mb-4">
           <div class="col-4">
             <div class="style-option selected" onclick="selectStyle(this, 'meme')">
-              <div class="fw-bold mb-1">😜 Meme</div>
-              <div class="small text-muted">Learn with humor</div>
+              <div class="style-title mb-1">😜 Meme</div>
+              <div class="style-desc">Learn with humor</div>
             </div>
           </div>
           <div class="col-4">
             <div class="style-option" onclick="selectStyle(this, 'story')">
-              <div class="fw-bold mb-1">📖 Story</div>
-              <div class="small text-muted">Learn through stories</div>
+              <div class="style-title mb-1">📖 Story</div>
+              <div class="style-desc">Learn through stories</div>
             </div>
           </div>
           <div class="col-4">
             <div class="style-option" onclick="selectStyle(this, 'real-life')">
-              <div class="fw-bold mb-1">🌍 Real Life</div>
-              <div class="small text-muted">Learn with examples</div>
+              <div class="style-title mb-1">🌍 Real Life</div>
+              <div class="style-desc">Learn with examples</div>
             </div>
           </div>
         </div>
@@ -201,21 +235,21 @@
 
       <!-- 2. DEBUG -->
       <div class="tab-pane fade" id="debug-pane">
-        <h5 class="fw-bold mb-3">🐞 Debug My Code</h5>
+        <h5 class="fw-bold mb-3 text-white">🐞 Debug My Code</h5>
         <textarea id="debugInput" class="form-control mb-4 font-monospace" rows="5" placeholder="Paste your code snippet here..."></textarea>
         <button onclick="runDebug()" class="btn btn-action w-100">🔍 Identify Bugs & Fix →</button>
       </div>
 
       <!-- 3. QUIZ -->
       <div class="tab-pane fade" id="quiz-pane">
-        <h5 class="fw-bold mb-3">🎯 Quiz Master</h5>
+        <h5 class="fw-bold mb-3 text-white">🎯 Quiz Master</h5>
         <input type="text" id="quizInput" class="form-control mb-4" placeholder="Enter topic (e.g. Java Inheritance, Async/Await)..." />
         <button onclick="runQuiz()" class="btn btn-action w-100">📝 Create Quiz →</button>
       </div>
 
       <!-- 4. ROADMAP -->
       <div class="tab-pane fade" id="roadmap-pane">
-        <h5 class="fw-bold mb-3">🗺️ Learning Roadmap</h5>
+        <h5 class="fw-bold mb-3 text-white">🗺️ Learning Roadmap</h5>
         <input type="text" id="roadmapInput" class="form-control mb-4" placeholder="Enter topic (e.g. React.js, Full-Stack Development)..." />
         <button onclick="runRoadmap()" class="btn btn-action w-100">🧭 Generate Roadmap →</button>
       </div>
@@ -225,10 +259,10 @@
     <!-- Output Card -->
     <div class="main-card p-4">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <div class="fw-bold">MEMEMIND <span id="statusBadge" class="status-badge badge-ready">• AI READY</span></div>
+        <div class="fw-bold text-white">MEMEMIND <span id="statusBadge" class="status-badge badge-ready">• AI READY</span></div>
       </div>
-      <div id="outputContainer" class="p-3 rounded" style="background: rgba(0, 0, 0, 0.2);">
-        <p class="text-muted m-0">Your AI learning experience will appear here...</p>
+      <div id="outputContainer" class="p-3 rounded" style="background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color);">
+        <p class="text-light m-0">Your AI learning experience will appear here...</p>
       </div>
     </div>
 
@@ -238,7 +272,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
   <script>
-    // 3D Wireframe Animation
+    // 3D Background setup
     const canvas = document.getElementById('bg3dCanvas');
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -247,17 +281,17 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
 
-    const geometry = new THREE.TorusKnotGeometry(10, 3, 100, 16);
-    const material = new THREE.MeshBasicMaterial({ color: 0x6366f1, wireframe: true, opacity: 0.15, transparent: true });
+    const geometry = new THREE.TorusKnotGeometry(12, 3, 100, 16);
+    const material = new THREE.MeshBasicMaterial({ color: 0x8b5cf6, wireframe: true, opacity: 0.08, transparent: true });
     const torusKnot = new THREE.Mesh(geometry, material);
     scene.add(torusKnot);
 
-    camera.position.z = 30;
+    camera.position.z = 50; // Shifted back to avoid text overlap
 
     function animate() {
       requestAnimationFrame(animate);
-      torusKnot.rotation.x += 0.003;
-      torusKnot.rotation.y += 0.005;
+      torusKnot.rotation.x += 0.002;
+      torusKnot.rotation.y += 0.003;
       renderer.render(scene, camera);
     }
     animate();
@@ -268,7 +302,7 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // Frontend logic
+    // Frontend State & Handlers
     let selectedStyle = 'meme';
 
     function selectStyle(element, style) {
