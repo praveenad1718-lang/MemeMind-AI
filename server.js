@@ -6,56 +6,82 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Enable CORS
 app.use(cors());
-
-// Parse incoming JSON requests
 app.use(express.json());
-
-// Serve static frontend files (index.html, etc.)
 app.use(express.static(path.join(__dirname)));
 
-// Helper function to call OpenAI/Gemini/Ollama API
+// Helper function to call Hugging Face / OpenAI / Gemini API
 async function generateAIResponse(systemPrompt, userPrompt) {
-  const apiKey = process.env.OPENAI_API_KEY || process.env.GEMINI_API_KEY;
-  const apiBaseUrl = process.env.API_BASE_URL || 'https://api.openai.com/v1';
+  const hfToken = process.env.HF_TOKEN;
+  const openAiKey = process.env.OPENAI_API_KEY || process.env.GEMINI_API_KEY;
+  const model = process.env.AI_MODEL || 'mistralai/Mistral-7B-Instruct-v0.2';
 
-  if (!apiKey) {
-    return `[AI Response - Demo Mode]\n\nSystem: ${systemPrompt}\nPrompt: ${userPrompt}\n\n(Note: Set OPENAI_API_KEY or GEMINI_API_KEY in your Render environment variables to enable live AI responses.)`;
-  }
+  // 1. If Hugging Face Token is provided
+  if (hfToken) {
+    try {
+      const response = await fetch(`https://api-inference.huggingface.co/models/${model}/v1/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${hfToken}`
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt }
+          ],
+          max_tokens: 500,
+          temperature: 0.7
+        })
+      });
 
-  try {
-    const response = await fetch(`${apiBaseUrl}/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: process.env.AI_MODEL || 'gpt-3.5-turbo',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        temperature: 0.7
-      })
-    });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Hugging Face API request failed.');
+      }
 
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error?.message || 'API request failed');
+      return data.choices[0].message.content;
+    } catch (error) {
+      console.error('HF API Error:', error);
+      throw error;
     }
-
-    return data.choices[0].message.content;
-  } catch (error) {
-    console.error('AI Request Error:', error);
-    throw error;
   }
+
+  // 2. Standard OpenAI/Gemini fallback
+  if (openAiKey) {
+    try {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${openAiKey}`
+        },
+        body: JSON.stringify({
+          model: 'gpt-3.5-turbo',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt }
+          ],
+          temperature: 0.7
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error?.message || 'API request failed');
+      return data.choices[0].message.content;
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
+  }
+
+  // 3. Demo fallback if no key is found
+  return `[AI Response - Demo Mode]\n\nSystem: ${systemPrompt}\nPrompt: ${userPrompt}\n\n(Note: Set HF_TOKEN in your Render environment variables to enable live AI responses.)`;
 }
 
 // ================= API ENDPOINTS =================
 
-// 1. EXPLAIN API
 app.post('/api/explain', async (req, res) => {
   try {
     const { prompt, style } = req.body;
@@ -77,7 +103,6 @@ app.post('/api/explain', async (req, res) => {
   }
 });
 
-// 2. DEBUG API
 app.post('/api/debug', async (req, res) => {
   try {
     const { code } = req.body;
@@ -92,7 +117,6 @@ app.post('/api/debug', async (req, res) => {
   }
 });
 
-// 3. QUIZ API
 app.post('/api/quiz', async (req, res) => {
   try {
     const { concept } = req.body;
@@ -107,7 +131,6 @@ app.post('/api/quiz', async (req, res) => {
   }
 });
 
-// 4. ROADMAP API
 app.post('/api/roadmap', async (req, res) => {
   try {
     const { concept } = req.body;
@@ -122,7 +145,6 @@ app.post('/api/roadmap', async (req, res) => {
   }
 });
 
-// 5. REPOSITORY API
 app.post('/api/repository', async (req, res) => {
   try {
     const { query } = req.body;
@@ -137,12 +159,10 @@ app.post('/api/repository', async (req, res) => {
   }
 });
 
-// Fallback Route to serve index.html
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Start Server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
