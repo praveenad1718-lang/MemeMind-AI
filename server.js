@@ -8,14 +8,13 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, './')));
 
-// Universal Hugging Face Router Helper
+// Universal Hugging Face Router Call Helper
 async function callHuggingFace(promptText) {
   const token = process.env.HF_TOKEN;
   if (!token) {
     throw new Error("HF_TOKEN environment variable is missing on Render.");
   }
 
-  // Uses Llama 3.1 8B with automatic provider routing (:fastest)
   const response = await fetch("https://router.huggingface.co/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -23,9 +22,9 @@ async function callHuggingFace(promptText) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      model: "meta-llama/Llama-3.1-8B-Instruct:fastest",
+      model: "meta-llama/Llama-3.1-8B-Instruct",
       messages: [
-        { role: "system", content: "You are an educational assistant for MemeMind AI." },
+        { role: "system", content: "You are an educational AI assistant for MemeMind AI." },
         { role: "user", content: promptText }
       ],
       max_tokens: 300,
@@ -56,7 +55,48 @@ app.post('/api/explain', async (req, res) => {
     const result = await callHuggingFace(promptQuery);
     res.json({ result });
   } catch (error) {
-    console.error("Error in /api/explain:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 2. Debug My Code Route
+app.post('/api/debug', async (req, res) => {
+  try {
+    const { code } = req.body;
+    if (!code) return res.status(400).json({ error: "Code is required" });
+
+    const promptQuery = `Identify the bug in this code and give a clear, simple fix:\n${code}`;
+    const result = await callHuggingFace(promptQuery);
+    res.json({ result });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 3. Quiz Generator Route
+app.post('/api/quiz', async (req, res) => {
+  try {
+    const { concept } = req.body;
+    if (!concept) return res.status(400).json({ error: "Concept is required" });
+
+    const promptQuery = `Generate 3 short multiple-choice quiz questions to test understanding of: "${concept}". Include options (A, B, C) and show correct answers at the end.`;
+    const result = await callHuggingFace(promptQuery);
+    res.json({ result });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 4. Concept Roadmap Route
+app.post('/api/roadmap', async (req, res) => {
+  try {
+    const { concept } = req.body;
+    if (!concept) return res.status(400).json({ error: "Concept is required" });
+
+    const promptQuery = `Create a step-by-step learning roadmap for "${concept}". List prerequisites first, followed by key steps formatted as: Step 1 -> Step 2 -> Step 3.`;
+    const result = await callHuggingFace(promptQuery);
+    res.json({ result });
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
