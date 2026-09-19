@@ -10,7 +10,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     body {
-      background-color: #0b0f19;
+      background-color: #050811;
       color: #ffffff;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       overflow-x: hidden;
@@ -25,7 +25,7 @@
       pointer-events: none;
     }
     .main-card {
-      background: rgba(17, 24, 39, 0.90);
+      background: rgba(15, 23, 42, 0.75); /* Made slightly translucent so 3D background is visible */
       backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 16px;
@@ -41,7 +41,7 @@
       color: #fff;
     }
     .style-card {
-      background: rgba(31, 41, 55, 0.8);
+      background: rgba(30, 41, 59, 0.7);
       border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 12px;
       cursor: pointer;
@@ -62,7 +62,7 @@
       color: white;
     }
     .output-box {
-      background: rgba(13, 17, 23, 0.95);
+      background: rgba(10, 15, 25, 0.85);
       border: 1px solid #30363d;
       border-radius: 12px;
       color: #f8fafc;
@@ -359,39 +359,38 @@
       `).join('');
     }
 
-    // Professional 3D Neural Brain Node Structure
+    // Professional 3D Neural Brain Node Structure (Positioned nicely in background)
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-    // Creating dual-hemisphere brain wireframe structure using stacked mathematical rings/nodes
     const brainGroup = new THREE.Group();
-    const materialWire = new THREE.MeshBasicMaterial({ color: 0x6366f1, wireframe: true, transparent: true, opacity: 0.25 });
-    const materialCore = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.45 });
+    const materialWire = new THREE.MeshBasicMaterial({ color: 0x6366f1, wireframe: true, transparent: true, opacity: 0.35 });
+    const materialCore = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.55 });
 
     // Left Hemisphere
-    const leftGeo = new THREE.SphereGeometry(7, 16, 16);
+    const leftGeo = new THREE.SphereGeometry(6, 16, 16);
     leftGeo.scale(1.2, 1.0, 1.4);
     const leftMesh = new THREE.Mesh(leftGeo, materialWire);
-    leftMesh.position.x = -3.5;
+    leftMesh.position.x = -3.2;
     brainGroup.add(leftMesh);
 
     // Right Hemisphere
-    const rightGeo = new THREE.SphereGeometry(7, 16, 16);
+    const rightGeo = new THREE.SphereGeometry(6, 16, 16);
     rightGeo.scale(1.2, 1.0, 1.4);
     const rightMesh = new THREE.Mesh(rightGeo, materialCore);
-    rightMesh.position.x = 3.5;
+    rightMesh.position.x = 3.2;
     brainGroup.add(rightMesh);
 
     // Central core node cluster
-    const coreGeo = new THREE.IcosahedronGeometry(4, 2);
-    const coreMesh = new THREE.Mesh(coreGeo, new THREE.MeshBasicMaterial({ color: 0xa855f7, wireframe: true, transparent: true, opacity: 0.35 }));
+    const coreGeo = new THREE.IcosahedronGeometry(3.5, 2);
+    const coreMesh = new THREE.Mesh(coreGeo, new THREE.MeshBasicMaterial({ color: 0xa855f7, wireframe: true, transparent: true, opacity: 0.45 }));
     brainGroup.add(coreMesh);
 
     scene.add(brainGroup);
-    camera.position.z = 24;
+    camera.position.z = 22;
 
     function animate() {
       requestAnimationFrame(animate);
