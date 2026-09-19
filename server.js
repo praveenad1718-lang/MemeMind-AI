@@ -8,7 +8,9 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+
+// Serve static files from root directory
+app.use(express.static(__dirname));
 
 // Updated Gemini API Helper Function
 async function generateAIResponse(systemPrompt, userPrompt) {
@@ -104,9 +106,9 @@ app.post('/api/repository', async (req, res) => {
   }
 });
 
-// Serve frontend for root
+// Serve index.html for all other routes
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.listen(PORT, () => {
