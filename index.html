@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MemeMind AI - Learn. Imagine. Code.</title>
+  <title>MemeMind AI - Categorized Repository</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Three.js for 3D Animation Background -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     body {
@@ -34,23 +33,10 @@
       color: #9ca3af;
       border-radius: 10px;
       font-weight: 500;
-      transition: all 0.3s ease;
     }
     .nav-pills .nav-link.active {
       background: linear-gradient(135deg, #6366f1, #8b5cf6);
       color: #fff;
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-    }
-    .style-card {
-      background: rgba(31, 41, 55, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    .style-card.active, .style-card:hover {
-      border-color: #38bdf8;
-      background: rgba(56, 189, 248, 0.15);
     }
     .btn-gradient {
       background: linear-gradient(135deg, #a855f7, #6366f1);
@@ -67,11 +53,24 @@
       border: 1px solid #30363d;
       border-radius: 12px;
     }
+    .folder-badge {
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+      transition: all 0.2s;
+    }
+    .folder-badge.active, .folder-badge:hover {
+      background: #6366f1;
+      color: white;
+      border-color: #818cf8;
+    }
   </style>
 </head>
 <body>
 
-  <!-- 3D Canvas Background -->
   <div id="canvas-container"></div>
 
   <div class="container py-4">
@@ -81,7 +80,7 @@
       <span class="badge bg-success px-3 py-2">Gemini AI Ready</span>
     </header>
 
-    <!-- Navigation Tabs (All 5 Features) -->
+    <!-- Navigation Tabs -->
     <ul class="nav nav-pills nav-fill mb-4 p-2 main-card" id="featureTabs">
       <li class="nav-item">
         <button class="nav-link active" onclick="switchTab('explain', this)">💡 Explain</button>
@@ -103,28 +102,12 @@
     <!-- Input Form Card -->
     <div class="main-card p-4 mb-4">
       
-      <!-- Style Selector for Explain -->
       <div id="styleSelector" class="mb-4">
-        <label class="form-label text-info fw-bold mb-3">CHOOSE YOUR LEARNING STYLE</label>
-        <div class="row g-3">
-          <div class="col-md-4">
-            <div class="style-card p-3 text-center active" onclick="setStyle('meme', this)">
-              <h5 class="m-0">🎭 Meme Style</h5>
-              <small class="text-muted">Learn with coding humor</small>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="style-card p-3 text-center" onclick="setStyle('story', this)">
-              <h5 class="m-0">📖 Story Style</h5>
-              <small class="text-muted">Learn through engaging stories</small>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="style-card p-3 text-center" onclick="setStyle('real-life', this)">
-              <h5 class="m-0">🌐 Real Life</h5>
-              <small class="text-muted">Practical real-world examples</small>
-            </div>
-          </div>
+        <label class="form-label text-info fw-bold mb-2">CHOOSE STYLE</label>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-info btn-sm active" onclick="setStyle('meme', this)">🎭 Meme</button>
+          <button class="btn btn-outline-info btn-sm" onclick="setStyle('story', this)">📖 Story</button>
+          <button class="btn btn-outline-info btn-sm" onclick="setStyle('real-life', this)">🌐 Real Life</button>
         </div>
       </div>
 
@@ -140,7 +123,12 @@
     <div class="main-card p-4 mb-4 d-none" id="outputCard">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="text-success m-0">MEMEMIND RESULT</h5>
-        <button class="btn btn-sm btn-outline-info" onclick="saveCurrentResult()">💾 Save to Repository</button>
+        <div class="d-flex gap-2 align-items-center">
+          <select id="saveFolderSelect" class="form-select form-select-sm bg-dark text-light border-secondary">
+            <!-- Dynamic Folders populated here -->
+          </select>
+          <button class="btn btn-sm btn-info text-nowrap" onclick="saveCurrentResult()">💾 Save</button>
+        </div>
       </div>
       <div id="outputContent" class="output-box p-3 text-light"></div>
     </div>
@@ -148,9 +136,15 @@
     <!-- Repository Saved Items Section -->
     <div id="repositorySection" class="main-card p-4 d-none">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="text-info m-0">📁 Saved Repository & History</h4>
-        <button class="btn btn-sm btn-outline-danger" onclick="clearRepository()">🗑️ Clear All</button>
+        <h4 class="text-info m-0">📁 Folders & Repositories</h4>
+        <button class="btn btn-sm btn-outline-success" onclick="createNewFolder()">➕ New Folder</button>
       </div>
+
+      <!-- Folder Selection Tabs -->
+      <div id="folderBadges" class="d-flex flex-wrap gap-2 mb-4">
+        <!-- Folders rendered dynamically -->
+      </div>
+
       <div id="savedList" class="d-flex flex-column gap-3"></div>
     </div>
 
@@ -160,8 +154,159 @@
     let activeTab = 'explain';
     let selectedStyle = 'meme';
     let currentResult = '';
+    let currentInput = '';
+    let selectedFolderView = 'All';
 
-    // --- 3D Background Animation (Three.js) ---
+    // Default Folders
+    let defaultFolders = ['Python', 'Java', 'English'];
+
+    function getFolders() {
+      let custom = JSON.parse(localStorage.getItem('mememind_folders') || '[]');
+      return Array.from(new Set([...defaultFolders, ...custom]));
+    }
+
+    function populateFolderSelect() {
+      const select = document.getElementById('saveFolderSelect');
+      const folders = getFolders();
+      select.innerHTML = folders.map(f => `<option value="${f}">${f}</option>`).join('');
+    }
+
+    function renderFolderBadges() {
+      const container = document.getElementById('folderBadges');
+      const folders = getFolders();
+      
+      let html = `<span class="folder-badge ${selectedFolderView === 'All' ? 'active' : ''}" onclick="filterByFolder('All')">📂 All</span>`;
+      html += folders.map(f => `
+        <span class="folder-badge ${selectedFolderView === f ? 'active' : ''}" onclick="filterByFolder('${f}')">📁 ${f}</span>
+      `).join('');
+
+      container.innerHTML = html;
+    }
+
+    function createNewFolder() {
+      const folderName = prompt('Enter New Repository/Folder Name (e.g., C++, React, Math):');
+      if (folderName && folderName.trim() !== '') {
+        let custom = JSON.parse(localStorage.getItem('mememind_folders') || '[]');
+        if (!custom.includes(folderName.trim())) {
+          custom.push(folderName.trim());
+          localStorage.setItem('mememind_folders', JSON.stringify(custom));
+        }
+        populateFolderSelect();
+        renderFolderBadges();
+        filterByFolder(folderName.trim());
+      }
+    }
+
+    function switchTab(tab, btn) {
+      activeTab = tab;
+      document.querySelectorAll('#featureTabs .nav-link').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const styleSel = document.getElementById('styleSelector');
+      const repoSection = document.getElementById('repositorySection');
+
+      styleSel.classList.add('d-none');
+      repoSection.classList.add('d-none');
+
+      if (tab === 'explain') styleSel.classList.remove('d-none');
+      else if (tab === 'repository') {
+        repoSection.classList.remove('d-none');
+        renderFolderBadges();
+        loadRepository();
+      }
+    }
+
+    function setStyle(style, el) {
+      selectedStyle = style;
+      el.parentElement.querySelectorAll('.btn').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    async function handleGenerate() {
+      const input = document.getElementById('userInput').value.trim();
+      if (!input) return alert('Please enter input text!');
+
+      currentInput = input;
+      const outCard = document.getElementById('outputCard');
+      const outContent = document.getElementById('outputContent');
+      const submitBtn = document.getElementById('submitBtn');
+
+      outCard.classList.remove('d-none');
+      outContent.innerHTML = '<div class="spinner-border text-info" role="status"></div> Generating AI response...';
+      submitBtn.disabled = true;
+
+      populateFolderSelect();
+
+      try {
+        const res = await fetch(`/api/${activeTab}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: input, code: input, concept: input, query: input, style: selectedStyle })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Server Error');
+
+        currentResult = data.result;
+        outContent.innerHTML = `<div style="white-space: pre-wrap; line-height: 1.6;">${data.result}</div>`;
+
+      } catch (err) {
+        outContent.innerHTML = `<span class="text-danger">Error: ${err.message}</span>`;
+      } finally {
+        submitBtn.disabled = false;
+      }
+    }
+
+    function saveCurrentResult() {
+      if (!currentResult) return alert('No result to save!');
+      const selectedFolder = document.getElementById('saveFolderSelect').value;
+
+      let repo = JSON.parse(localStorage.getItem('mememind_repo') || '[]');
+      repo.unshift({
+        id: Date.now(),
+        folder: selectedFolder,
+        type: activeTab,
+        prompt: currentInput,
+        response: currentResult,
+        date: new Date().toLocaleString()
+      });
+
+      localStorage.setItem('mememind_repo', JSON.stringify(repo));
+      alert(`Saved under '${selectedFolder}' repository!`);
+    }
+
+    function filterByFolder(folderName) {
+      selectedFolderView = folderName;
+      renderFolderBadges();
+      loadRepository();
+    }
+
+    function loadRepository() {
+      const savedList = document.getElementById('savedList');
+      let repo = JSON.parse(localStorage.getItem('mememind_repo') || '[]');
+
+      if (selectedFolderView !== 'All') {
+        repo = repo.filter(item => item.folder === selectedFolderView);
+      }
+
+      if (repo.length === 0) {
+        savedList.innerHTML = `<p class="text-muted">No items saved in '${selectedFolderView}' repository.</p>`;
+        return;
+      }
+
+      savedList.innerHTML = repo.map(item => `
+        <div class="card p-3 bg-dark border-secondary">
+          <div class="d-flex justify-content-between text-muted small mb-1">
+            <span>📁 <strong>${item.folder || 'General'}</strong> | ${item.type.toUpperCase()}</span>
+            <span>${item.date}</span>
+          </div>
+          <p class="fw-bold text-warning mb-1">Q: ${item.prompt}</p>
+          <div class="text-light small" style="white-space: pre-wrap;">${item.response}</div>
+        </div>
+      `).join('');
+    }
+
+    // Three.js Background
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ alpha: true });
@@ -181,134 +326,6 @@
       renderer.render(scene, camera);
     }
     animate();
-
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updatePriorityMatrix ? camera.updatePriorityMatrix() : camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-
-    // --- App Logic ---
-    function switchTab(tab, btn) {
-      activeTab = tab;
-      document.querySelectorAll('#featureTabs .nav-link').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-      const styleSel = document.getElementById('styleSelector');
-      const inputLabel = document.getElementById('inputLabel');
-      const repoSection = document.getElementById('repositorySection');
-
-      styleSel.classList.add('d-none');
-      repoSection.classList.add('d-none');
-
-      if (tab === 'explain') {
-        styleSel.classList.remove('d-none');
-        inputLabel.innerText = "Enter CS Concept to Explain:";
-      } else if (tab === 'debug') {
-        inputLabel.innerText = "Paste Code Snippet to Debug:";
-      } else if (tab === 'quiz') {
-        inputLabel.innerText = "Enter Topic for Quiz:";
-      } else if (tab === 'roadmap') {
-        inputLabel.innerText = "Enter Tech Stack or Subject for Roadmap:";
-      } else if (tab === 'repository') {
-        inputLabel.innerText = "Search Saved Repository or Query AI:";
-        repoSection.classList.remove('d-none');
-        loadRepository();
-      }
-    }
-
-    function setStyle(style, el) {
-      selectedStyle = style;
-      document.querySelectorAll('.style-card').forEach(c => c.classList.remove('active'));
-      el.classList.add('active');
-    }
-
-    async function handleGenerate() {
-      const input = document.getElementById('userInput').value.trim();
-      if (!input) return alert('Please enter input text!');
-
-      const outCard = document.getElementById('outputCard');
-      const outContent = document.getElementById('outputContent');
-      const submitBtn = document.getElementById('submitBtn');
-
-      outCard.classList.remove('d-none');
-      outContent.innerHTML = '<div class="spinner-border text-info" role="status"></div> Generating AI response...';
-      submitBtn.disabled = true;
-
-      let endpoint = `/api/${activeTab}`;
-      let bodyData = {};
-
-      if (activeTab === 'explain') bodyData = { prompt: input, style: selectedStyle };
-      else if (activeTab === 'debug') bodyData = { code: input };
-      else if (activeTab === 'quiz') bodyData = { concept: input };
-      else if (activeTab === 'roadmap') bodyData = { concept: input };
-      else if (activeTab === 'repository') bodyData = { query: input };
-
-      try {
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(bodyData)
-        });
-
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Server Error');
-
-        currentResult = data.result;
-
-        let formatted = data.result
-          .replace(/^### (.*$)/gim, '<h5 class="fw-bold text-info mb-2">$1</h5>')
-          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-
-        outContent.innerHTML = `<div style="white-space: pre-wrap; line-height: 1.6;">${formatted}</div>`;
-        saveToLocalStorage(activeTab, input, data.result);
-
-      } catch (err) {
-        outContent.innerHTML = `<span class="text-danger">Error: ${err.message}</span>`;
-      } finally {
-        submitBtn.disabled = false;
-      }
-    }
-
-    function saveToLocalStorage(type, prompt, response) {
-      let repo = JSON.parse(localStorage.getItem('mememind_repo') || '[]');
-      repo.unshift({ id: Date.now(), type, prompt, response, date: new Date().toLocaleString() });
-      localStorage.setItem('mememind_repo', JSON.stringify(repo));
-    }
-
-    function saveCurrentResult() {
-      if (!currentResult) return alert('No result to save!');
-      alert('Saved to Repository successfully!');
-      if (activeTab === 'repository') loadRepository();
-    }
-
-    function loadRepository() {
-      const savedList = document.getElementById('savedList');
-      let repo = JSON.parse(localStorage.getItem('mememind_repo') || '[]');
-
-      if (repo.length === 0) {
-        savedList.innerHTML = '<p class="text-muted">No saved items yet.</p>';
-        return;
-      }
-
-      savedList.innerHTML = repo.map(item => `
-        <div class="card p-3 bg-dark border-secondary">
-          <div class="d-flex justify-content-between text-muted small mb-1">
-            <span><strong>TYPE:</strong> ${item.type.toUpperCase()}</span>
-            <span>${item.date}</span>
-          </div>
-          <p class="fw-bold text-warning mb-1">Q: ${item.prompt}</p>
-          <div class="text-light small" style="white-space: pre-wrap;">${item.response.substring(0, 200)}...</div>
-        </div>
-      `).join('');
-    }
-
-    function clearRepository() {
-      if (confirm('Clear repository history?')) {
-        localStorage.removeItem('mememind_repo');
-        loadRepository();
-      }
-    }
   </script>
 </body>
 </html>
