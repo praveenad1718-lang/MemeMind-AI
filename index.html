@@ -11,7 +11,7 @@
   <style>
     body {
       background-color: #0b0f19;
-      color: #e2e8f0;
+      color: #ffffff; /* Changed to pure white for high contrast */
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       overflow-x: hidden;
     }
@@ -25,31 +25,31 @@
       pointer-events: none;
     }
     .main-card {
-      background: rgba(17, 24, 39, 0.85);
+      background: rgba(17, 24, 39, 0.90);
       backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 16px;
       box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
     }
     .nav-pills .nav-link {
-      color: #9ca3af;
+      color: #cbd5e1; /* Brighter text for nav tabs */
       border-radius: 10px;
-      font-weight: 500;
+      font-weight: 600;
     }
     .nav-pills .nav-link.active {
       background: linear-gradient(135deg, #6366f1, #8b5cf6);
       color: #fff;
     }
     .style-card {
-      background: rgba(31, 41, 55, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(31, 41, 55, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 12px;
       cursor: pointer;
       transition: all 0.3s ease;
     }
     .style-card.active, .style-card:hover {
       border-color: #38bdf8;
-      background: rgba(56, 189, 248, 0.15);
+      background: rgba(56, 189, 248, 0.2);
     }
     .btn-gradient {
       background: linear-gradient(135deg, #a855f7, #6366f1);
@@ -62,23 +62,29 @@
       color: white;
     }
     .output-box {
-      background: rgba(13, 17, 23, 0.9);
+      background: rgba(13, 17, 23, 0.95);
       border: 1px solid #30363d;
       border-radius: 12px;
+      color: #f8fafc;
     }
     .folder-badge {
       cursor: pointer;
       padding: 8px 16px;
       border-radius: 20px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #cbd5e1;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #f1f5f9;
+      font-weight: 500;
       transition: all 0.2s;
     }
     .folder-badge.active, .folder-badge:hover {
       background: #6366f1;
       color: white;
       border-color: #818cf8;
+    }
+    /* Custom bright helper text */
+    .bright-text {
+      color: #94a3b8 !important;
     }
   </style>
 </head>
@@ -92,9 +98,9 @@
     <header class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary">
       <div>
         <h2 class="text-info fw-bold m-0">🧠 MEMEMIND AI</h2>
-        <small class="text-muted">Learn. Remember. Code. (Multi-Disciplinary Repository)</small>
+        <small class="text-warning fw-semibold">Learn. Remember. Code. (Multi-Disciplinary Repository)</small>
       </div>
-      <span class="badge bg-success px-3 py-2">System Online</span>
+      <span class="badge bg-success px-3 py-2 fw-bold">System Online</span>
     </header>
 
     <!-- Navigation Tabs -->
@@ -119,34 +125,34 @@
     <!-- Input Form Card -->
     <div class="main-card p-4 mb-4" id="mainInputCard">
       
-      <!-- Style Selector Cards with Descriptive Subtext -->
+      <!-- Style Selector Cards with Bright Text -->
       <div id="styleSelector" class="mb-4">
         <label class="form-label text-info fw-bold mb-3">CHOOSE YOUR LEARNING STYLE</label>
         <div class="row g-3">
           <div class="col-md-4">
             <div class="style-card p-3 text-center active" onclick="setStyle('meme', this)">
-              <h5 class="m-0 text-light">🎭 Meme Style</h5>
-              <small class="text-muted">Learn with coding humor & fun</small>
+              <h5 class="m-0 text-white fw-bold">🎭 Meme Style</h5>
+              <small class="bright-text">Learn with coding humor & fun</small>
             </div>
           </div>
           <div class="col-md-4">
             <div class="style-card p-3 text-center" onclick="setStyle('story', this)">
-              <h5 class="m-0 text-light">📖 Story Style</h5>
-              <small class="text-muted">Learn through engaging stories</small>
+              <h5 class="m-0 text-white fw-bold">📖 Story Style</h5>
+              <small class="bright-text">Learn through engaging stories</small>
             </div>
           </div>
           <div class="col-md-4">
             <div class="style-card p-3 text-center" onclick="setStyle('real-life', this)">
-              <h5 class="m-0 text-light">🌐 Real Life</h5>
-              <small class="text-muted">Practical real-world examples</small>
+              <h5 class="m-0 text-white fw-bold">🌐 Real Life</h5>
+              <small class="bright-text">Practical real-world examples</small>
             </div>
           </div>
         </div>
       </div>
 
       <div class="mb-3">
-        <label id="inputLabel" class="form-label text-light fw-bold">Enter Topic or Question:</label>
-        <textarea id="userInput" class="form-control bg-dark text-light border-secondary" rows="4" placeholder="Type your concept or paste code here..."></textarea>
+        <label id="inputLabel" class="form-label text-white fw-bold">Enter Topic or Question:</label>
+        <textarea id="userInput" class="form-control bg-dark text-white border-secondary" rows="4" placeholder="Type your topic or paste code here..."></textarea>
       </div>
 
       <button id="submitBtn" class="btn btn-gradient btn-lg w-100" onclick="handleGenerate()">✨ Generate Learning</button>
@@ -155,22 +161,22 @@
     <!-- Output Result Section -->
     <div class="main-card p-4 mb-4 d-none" id="outputCard">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="text-success m-0">MEMEMIND RESULT</h5>
+        <h5 class="text-success fw-bold m-0">MEMEMIND RESULT</h5>
         <div class="d-flex gap-2 align-items-center">
-          <select id="saveFolderSelect" class="form-select form-select-sm bg-dark text-light border-secondary">
+          <select id="saveFolderSelect" class="form-select form-select-sm bg-dark text-white border-secondary">
             <!-- Folders populated dynamically -->
           </select>
-          <button class="btn btn-sm btn-info text-nowrap" onclick="saveCurrentResult()">💾 Save</button>
+          <button class="btn btn-sm btn-info text-nowrap fw-bold" onclick="saveCurrentResult()">💾 Save</button>
         </div>
       </div>
-      <div id="outputContent" class="output-box p-3 text-light"></div>
+      <div id="outputContent" class="output-box p-3 text-white"></div>
     </div>
 
     <!-- Repository Saved Items Section -->
     <div id="repositorySection" class="main-card p-4 d-none">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="text-info m-0">📁 Folders & Repositories</h4>
-        <button class="btn btn-sm btn-outline-success" onclick="createNewFolder()">➕ New Folder</button>
+        <h4 class="text-info fw-bold m-0">📁 Folders & Repositories</h4>
+        <button class="btn btn-sm btn-outline-success fw-bold" onclick="createNewFolder()">➕ New Folder</button>
       </div>
 
       <!-- Folder Selection Badges -->
@@ -188,7 +194,6 @@
     let currentInput = '';
     let selectedFolderView = 'All';
 
-    // Default folders catering to both Engineering & Arts/Science students
     let defaultFolders = ['Python', 'Java', 'English', 'History', 'Commerce', 'Mathematics', 'Physics'];
 
     function getFolders() {
@@ -339,18 +344,18 @@
       }
 
       if (repo.length === 0) {
-        savedList.innerHTML = `<p class="text-muted">No items saved in '${selectedFolderView}' repository.</p>`;
+        savedList.innerHTML = `<p class="text-warning">No items saved in '${selectedFolderView}' repository.</p>`;
         return;
       }
 
       savedList.innerHTML = repo.map(item => `
         <div class="card p-3 bg-dark border-secondary">
-          <div class="d-flex justify-content-between text-muted small mb-1">
+          <div class="d-flex justify-content-between text-warning small mb-1">
             <span>📁 <strong>${item.folder || 'General'}</strong> | ${item.type.toUpperCase()}</span>
             <span>${item.date}</span>
           </div>
-          <p class="fw-bold text-warning mb-1">Q: ${item.prompt}</p>
-          <div class="text-light small" style="white-space: pre-wrap;">${item.response}</div>
+          <p class="fw-bold text-info mb-1">Q: ${item.prompt}</p>
+          <div class="text-white small" style="white-space: pre-wrap;">${item.response}</div>
         </div>
       `).join('');
     }
