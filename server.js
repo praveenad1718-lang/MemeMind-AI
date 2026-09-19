@@ -10,45 +10,72 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-// Helper function to call Hugging Face / OpenAI / Gemini API
 async function generateAIResponse(systemPrompt, userPrompt) {
   const hfToken = process.env.HF_TOKEN;
   const openAiKey = process.env.OPENAI_API_KEY || process.env.GEMINI_API_KEY;
-  const model = process.env.AI_MODEL || 'mistralai/Mistral-7B-Instruct-v0.2';
+  // Use a reliable model endpoint
+  const model = process.env.AI_MODEL || 'meta-llama/Llama-3.2-1B-Instruct';
 
-  // 1. If Hugging Face Token is provided
+  // 1. Hugging Face Inference API
   if (hfToken) {
     try {
-      const response = await fetch(`https://api-inference.huggingface.co/models/${model}/v1/chat/completions`, {
+      const response = await fetch(`https://api-inference.huggingface.co/models/${model}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${hfToken}`
+          'Authorization': `Bearer ${hfToken.trim()}`
         },
         body: JSON.stringify({
-          model: model,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt }
-          ],
-          max_tokens: 500,
-          temperature: 0.7
+          inputs: `<|system|>\n${systemPrompt}</s>\n<|user|>\n${userPrompt}</s>\n<|assistant|>`,
+          parameters: {
+            max_new_tokens: 512,
+            temperature: 0.7,
+            return_full_text: false
+          }
         })
       });
 
       const data = await response.json();
+
       if (!response.ok) {
-        throw new Error(data.error || 'Hugging Face API request failed.');
+        // Fallback: try standard chat completion endpoint if router is enabled
+        const chatResponse = await fetch(`https://api-inference.huggingface.co/models/${model}/v1/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${hfToken.trim()}`
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userPrompt }
+            ],
+            max_tokens: 500
+          })
+        });
+
+        const chatData = await chatResponse.json();
+        if (!chatResponse.ok) {
+          throw new Error(chatData.error?.message || chatData.error || data.error || 'Hugging Face API call failed.');
+        }
+        return chatData.choices[0].message.content;
       }
 
-      return data.choices[0].message.content;
+      if (Array.isArray(data) && data[0]?.generated_text) {
+        return data[0].generated_text;
+      } else if (data.generated_text) {
+        return data.generated_text;
+      } else {
+        return JSON.stringify(data);
+      }
     } catch (error) {
       console.error('HF API Error:', error);
       throw error;
     }
   }
 
-  // 2. Standard OpenAI/Gemini fallback
+  // 2. OpenAI / Gemini Fallback
   if (openAiKey) {
     try {
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -76,8 +103,7 @@ async function generateAIResponse(systemPrompt, userPrompt) {
     }
   }
 
-  // 3. Demo fallback if no key is found
-  return `[AI Response - Demo Mode]\n\nSystem: ${systemPrompt}\nPrompt: ${userPrompt}\n\n(Note: Set HF_TOKEN in your Render environment variables to enable live AI responses.)`;
+  return `[AI Response - Demo Mode]\n\nSystem: ${systemPrompt}\nPrompt: ${userPrompt}\n\n(Note: Set HF_TOKEN in your Render environment variables.)`;
 }
 
 // ================= API ENDPOINTS =================
