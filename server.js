@@ -12,7 +12,7 @@ app.use(express.json());
 // Serve static files from root directory
 app.use(express.static(__dirname));
 
-// Gemini API Helper Function using gemini-2.0-flash
+// Gemini API Helper Function using gemini-3.6-flash
 async function generateAIResponse(systemPrompt, userPrompt) {
   const apiKey = process.env.GEMINI_API_KEY;
 
@@ -20,7 +20,7 @@ async function generateAIResponse(systemPrompt, userPrompt) {
     return `[AI Response - Demo Mode]\n\n${systemPrompt}\n\nUser Question: ${userPrompt}\n\n(Note: Set GEMINI_API_KEY in Render Environment Variables.)`;
   }
 
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey.trim()}`;
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey.trim()}`;
 
   try {
     const response = await fetch(endpoint, {
