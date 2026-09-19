@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MemeMind AI - Categorized Repository</title>
+  <title>MemeMind AI - Multi-Disciplinary Repository</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
@@ -77,7 +77,7 @@
     <!-- Header -->
     <header class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary">
       <h2 class="text-info fw-bold m-0">🧠 MemeMind AI</h2>
-      <span class="badge bg-success px-3 py-2">Gemini AI Ready</span>
+      <span class="badge bg-success px-3 py-2">Multi-Stream Ready</span>
     </header>
 
     <!-- Navigation Tabs -->
@@ -125,7 +125,7 @@
         <h5 class="text-success m-0">MEMEMIND RESULT</h5>
         <div class="d-flex gap-2 align-items-center">
           <select id="saveFolderSelect" class="form-select form-select-sm bg-dark text-light border-secondary">
-            <!-- Dynamic Folders populated here -->
+            <!-- Folders populated dynamically -->
           </select>
           <button class="btn btn-sm btn-info text-nowrap" onclick="saveCurrentResult()">💾 Save</button>
         </div>
@@ -140,9 +140,9 @@
         <button class="btn btn-sm btn-outline-success" onclick="createNewFolder()">➕ New Folder</button>
       </div>
 
-      <!-- Folder Selection Tabs -->
+      <!-- Folder Selection Badges -->
       <div id="folderBadges" class="d-flex flex-wrap gap-2 mb-4">
-        <!-- Folders rendered dynamically -->
+        <!-- Rendered dynamically -->
       </div>
 
       <div id="savedList" class="d-flex flex-column gap-3"></div>
@@ -157,8 +157,8 @@
     let currentInput = '';
     let selectedFolderView = 'All';
 
-    // Default Folders
-    let defaultFolders = ['Python', 'Java', 'English'];
+    // Default folders catering to both Engineering & Arts/Science students
+    let defaultFolders = ['Python', 'Java', 'English', 'History', 'Commerce', 'Mathematics', 'Physics'];
 
     function getFolders() {
       let custom = JSON.parse(localStorage.getItem('mememind_folders') || '[]');
@@ -184,16 +184,17 @@
     }
 
     function createNewFolder() {
-      const folderName = prompt('Enter New Repository/Folder Name (e.g., C++, React, Math):');
+      const folderName = prompt('Enter New Repository/Subject Name (e.g., Economics, Chemistry, Tamil):');
       if (folderName && folderName.trim() !== '') {
+        let cleanName = folderName.trim();
         let custom = JSON.parse(localStorage.getItem('mememind_folders') || '[]');
-        if (!custom.includes(folderName.trim())) {
-          custom.push(folderName.trim());
+        if (!custom.includes(cleanName) && !defaultFolders.includes(cleanName)) {
+          custom.push(cleanName);
           localStorage.setItem('mememind_folders', JSON.stringify(custom));
         }
         populateFolderSelect();
         renderFolderBadges();
-        filterByFolder(folderName.trim());
+        filterByFolder(cleanName);
       }
     }
 
@@ -306,7 +307,7 @@
       `).join('');
     }
 
-    // Three.js Background
+    // Three.js Background Animation
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ alpha: true });
