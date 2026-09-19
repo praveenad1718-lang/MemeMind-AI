@@ -10,87 +10,121 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-// Dynamic AI Response Generator for smooth demo without API failures
-function getDemoResponse(systemPrompt, userPrompt, type) {
-  const topic = userPrompt.replace(/Explain this concept:|Debug this code snippet:|Create a quiz for the topic:|Generate a learning roadmap for:|Search repository for:/gi, '').trim();
+// Helper function to call Google Gemini API
+async function generateAIResponse(systemPrompt, userPrompt) {
+  const apiKey = process.env.GEMINI_API_KEY;
 
-  if (type === 'explain') {
-    return `### 💡 MemeMind AI Explanation for: **${topic}**\n\n` +
-           `1. **Core Concept:** Imagine ${topic} like ordering pizza online. You ask for a specific topping, and the chef (CPU/Engine) delivers it exact to your specifications!\n\n` +
-           `2. **Analogy:** Thinking of ${topic} as a blueprint makes it super easy. You define rules once, and reuse them everywhere.\n\n` +
-           `3. **Pro Tip:** Always remember to test your logic before deploying to production! 🚀`;
+  if (!apiKey) {
+    return `[AI Response - Demo Mode]\n\n${systemPrompt}\n\nUser Question: ${userPrompt}\n\n(Note: Set GEMINI_API_KEY in Render Environment Variables for live Gemini responses.)`;
   }
 
-  if (type === 'debug') {
-    return `### 🐛 MemeMind AI Debugger Result\n\n` +
-           `**Analysis:** Found potential syntax or scope errors in your logic for \`${topic.substring(0, 30)}...\`.\n\n` +
-           `**Fixed Code Example:**\n\`\`\`javascript\n// Corrected implementation\ntry {\n  console.log("Executing optimized code...");\n} catch (err) {\n  console.error("Fixed error:", err);\n}\n\`\`\`\n\n` +
-           `**Why it failed:** Null pointer or undefined variable standard error handled smoothly!`;
-  }
+  try {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey.trim()}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: 'user',
+            parts: [{ text: `${systemPrompt}\n\nUser Request: ${userPrompt}` }]
+          }
+        ]
+      })
+    });
 
-  if (type === 'quiz') {
-    return `### 🧠 MemeMind Quiz: ${topic}\n\n` +
-           `**Q1. What is the primary purpose of ${topic}?**\n` +
-           `- [ ] A) To confuse developers\n` +
-           `- [x] B) To structure and optimize code execution\n` +
-           `- [ ] C) To delete files\n\n` +
-           `**Q2. Which keyword or concept is most related?**\n` +
-           `- [x] A) Core syntax and runtime execution\n` +
-           `- [ ] B) HTML tag styling\n\n` +
-           `*Explanation: Option B/A represents the core fundamentals of computing.*`;
-  }
+    const data = await response.json();
 
-  if (type === 'roadmap') {
-    return `### 🗺️ Learning Roadmap: ${topic}\n\n` +
-           `1. **Beginner (Days 1-3):** Understanding basic syntax and core principles of ${topic}.\n` +
-           `2. **Intermediate (Days 4-7):** Building mini-projects and implementing debug procedures.\n` +
-           `3. **Advanced (Week 2+):** Performance optimization, architecture design, and deployment!`;
-  }
+    if (!response.ok) {
+      throw new Error(data.error?.message || 'Gemini API connection error');
+    }
 
-  return `### 📁 MemeMind Repository Query: ${topic}\n\n` +
-         `Found 3 documentation references and sample snippets related to **${topic}** in your knowledge base.`;
+    return data.candidates[0].content.parts[0].text;
+  } catch (error) {
+    console.error('Gemini API Error:', error);
+    throw new Error(`AI Error: ${error.message}`);
+  }
 }
 
-// ================= API ENDPOINTS =================
+// 1. EXPLAIN API
+app.post('/api/explain', async (req, res) => {
+  try {
+    const { prompt, style } = req.body;
+    if (!prompt) return res.status(400).json({ error: 'Prompt is required.' });
 
-app.post('/api/explain', (req, res) => {
-  const { prompt, style } = req.body;
-  if (!prompt) return res.status(400).json({ error: 'Prompt is required.' });
-  
-  const result = getDemoResponse('Explain', prompt, 'explain');
-  res.json({ result });
+    let styleInstruction = 'Explain in a fun, meme-inspired, hilarious way with coding humor.';
+    if (style === 'story') {
+      styleInstruction = 'Explain using an engaging narrative story with relatable characters.';
+    } else if (style === 'real-life') {
+      styleInstruction = 'Explain using practical real-world analogies and everyday life comparisons.';
+    }
+
+    const systemPrompt = `You are MemeMind AI, a creative computer science tutor. ${styleInstruction}`;
+    const result = await generateAIResponse(systemPrompt, `Explain this concept: ${prompt}`);
+
+    res.json({ result });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-app.post('/api/debug', (req, res) => {
-  const { code } = req.body;
-  if (!code) return res.status(400).json({ error: 'Code snippet is required.' });
+// 2. DEBUG API
+app.post('/api/debug', async (req, res) => {
+  try {
+    const { code } = req.body;
+    if (!code) return res.status(400).json({ error: 'Code snippet is required.' });
 
-  const result = getDemoResponse('Debug', code, 'debug');
-  res.json({ result });
+    const systemPrompt = 'You are MemeMind AI Debugger. Identify bugs, explain why they happen, and provide corrected code with clear explanations.';
+    const result = await generateAIResponse(systemPrompt, `Debug this code snippet:\n\n${code}`);
+
+    res.json({ result });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-app.post('/api/quiz', (req, res) => {
-  const { concept } = req.body;
-  if (!concept) return res.status(400).json({ error: 'Concept is required.' });
+// 3. QUIZ API
+app.post('/api/quiz', async (req, res) => {
+  try {
+    const { concept } = req.body;
+    if (!concept) return res.status(400).json({ error: 'Concept/Topic is required.' });
 
-  const result = getDemoResponse('Quiz', concept, 'quiz');
-  res.json({ result });
+    const systemPrompt = 'You are MemeMind AI Quiz Master. Generate 3 multiple-choice questions with answer choices and explanations.';
+    const result = await generateAIResponse(systemPrompt, `Create a quiz for the topic: ${concept}`);
+
+    res.json({ result });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-app.post('/api/roadmap', (req, res) => {
-  const { concept } = req.body;
-  if (!concept) return res.status(400).json({ error: 'Topic is required.' });
+// 4. ROADMAP API
+app.post('/api/roadmap', async (req, res) => {
+  try {
+    const { concept } = req.body;
+    if (!concept) return res.status(400).json({ error: 'Topic is required.' });
 
-  const result = getDemoResponse('Roadmap', concept, 'roadmap');
-  res.json({ result });
+    const systemPrompt = 'You are MemeMind AI Roadmap Guide. Create a step-by-step structured learning roadmap broken into Beginner, Intermediate, and Advanced stages.';
+    const result = await generateAIResponse(systemPrompt, `Generate a learning roadmap for: ${concept}`);
+
+    res.json({ result });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-app.post('/api/repository', (req, res) => {
-  const { query } = req.body;
-  if (!query) return res.status(400).json({ error: 'Query is required.' });
+// 5. REPOSITORY API
+app.post('/api/repository', async (req, res) => {
+  try {
+    const { query } = req.body;
+    if (!query) return res.status(400).json({ error: 'Search query is required.' });
 
-  const result = getDemoResponse('Repository', query, 'repository');
-  res.json({ result });
+    const systemPrompt = 'You are MemeMind AI Repository Search. Provide key technical summaries, references, and code snippets relevant to the user query.';
+    const result = await generateAIResponse(systemPrompt, `Search repository for: ${query}`);
+
+    res.json({ result });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 app.get('*', (req, res) => {
