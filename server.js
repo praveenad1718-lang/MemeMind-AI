@@ -15,7 +15,7 @@ async function callHuggingFace(promptText) {
     throw new Error("HF_TOKEN environment variable is missing on Render.");
   }
 
-  // Uses a model fully supported by Hugging Face's free serverless router
+  // Uses HF Router with automatic provider routing policy (:fastest)
   const response = await fetch("https://router.huggingface.co/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -23,7 +23,7 @@ async function callHuggingFace(promptText) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      model: "meta-llama/Llama-3.2-3B-Instruct", // Supported serverless model
+      model: "Qwen/Qwen2.5-7B-Instruct:fastest",
       messages: [
         { role: "system", content: "You are an educational assistant for MemeMind AI." },
         { role: "user", content: promptText }
