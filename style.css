@@ -1,0 +1,45 @@
+body {
+  background-color: #0b0f19;
+  color: #e2e8f0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card {
+  background-color: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 12px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border: none;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+}
+
+.nav-pills .nav-link {
+  color: #9ca3af;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.nav-pills .nav-link.active {
+  background-color: #374151;
+  color: #38bdf8;
+  font-weight: 600;
+}
+
+.output-box {
+  background-color: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.saved-card {
+  background-color: #1a2332;
+  border-left: 4px solid #38bdf8;
+}
