@@ -5,9 +5,74 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MemeMind AI - Learn. Imagine. Code.</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <!-- Three.js for 3D Animation Background -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    body {
+      background-color: #0b0f19;
+      color: #e2e8f0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow-x: hidden;
+    }
+    #canvas-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      pointer-events: none;
+    }
+    .main-card {
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+    .nav-pills .nav-link {
+      color: #9ca3af;
+      border-radius: 10px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    .nav-pills .nav-link.active {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+    .style-card {
+      background: rgba(31, 41, 55, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .style-card.active, .style-card:hover {
+      border-color: #38bdf8;
+      background: rgba(56, 189, 248, 0.15);
+    }
+    .btn-gradient {
+      background: linear-gradient(135deg, #a855f7, #6366f1);
+      border: none;
+      color: white;
+      font-weight: 600;
+    }
+    .btn-gradient:hover {
+      background: linear-gradient(135deg, #9333ea, #4f46e5);
+      color: white;
+    }
+    .output-box {
+      background: rgba(13, 17, 23, 0.9);
+      border: 1px solid #30363d;
+      border-radius: 12px;
+    }
+  </style>
 </head>
 <body>
+
+  <!-- 3D Canvas Background -->
+  <div id="canvas-container"></div>
 
   <div class="container py-4">
     <!-- Header -->
@@ -16,35 +81,50 @@
       <span class="badge bg-success px-3 py-2">Gemini AI Ready</span>
     </header>
 
-    <!-- Navigation Tabs -->
-    <ul class="nav nav-pills nav-fill mb-4 p-2 bg-dark rounded" id="featureTabs">
+    <!-- Navigation Tabs (All 5 Features) -->
+    <ul class="nav nav-pills nav-fill mb-4 p-2 main-card" id="featureTabs">
       <li class="nav-item">
-        <button class="nav-link active" onclick="switchTab('explain')">💡 Explain</button>
+        <button class="nav-link active" onclick="switchTab('explain', this)">💡 Explain</button>
       </li>
       <li class="nav-item">
-        <button class="nav-link" onclick="switchTab('debug')">🐛 Debug</button>
+        <button class="nav-link" onclick="switchTab('debug', this)">🐛 Debug</button>
       </li>
       <li class="nav-item">
-        <button class="nav-link" onclick="switchTab('quiz')">🧠 Quiz</button>
+        <button class="nav-link" onclick="switchTab('quiz', this)">🧠 Quiz</button>
       </li>
       <li class="nav-item">
-        <button class="nav-link" onclick="switchTab('roadmap')">🗺️ Roadmap</button>
+        <button class="nav-link" onclick="switchTab('roadmap', this)">🗺️ Roadmap</button>
       </li>
       <li class="nav-item">
-        <button class="nav-link" onclick="switchTab('repository')">📁 Repository & Saved</button>
+        <button class="nav-link" onclick="switchTab('repository', this)">📁 Repository</button>
       </li>
     </ul>
 
-    <!-- Feature Input Form -->
-    <div class="card p-4 mb-4 shadow">
+    <!-- Input Form Card -->
+    <div class="main-card p-4 mb-4">
       
-      <!-- Style selector for Explain feature -->
-      <div id="styleSelector" class="mb-3">
-        <label class="form-label text-warning fw-semibold">CHOOSE YOUR LEARNING STYLE</label>
-        <div class="d-flex gap-2">
-          <button type="button" class="btn btn-outline-info active style-btn" onclick="setStyle('meme', this)">🎭 Meme Style</button>
-          <button type="button" class="btn btn-outline-info style-btn" onclick="setStyle('story', this)">📖 Story Style</button>
-          <button type="button" class="btn btn-outline-info style-btn" onclick="setStyle('real-life', this)">🌐 Real Life</button>
+      <!-- Style Selector for Explain -->
+      <div id="styleSelector" class="mb-4">
+        <label class="form-label text-info fw-bold mb-3">CHOOSE YOUR LEARNING STYLE</label>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="style-card p-3 text-center active" onclick="setStyle('meme', this)">
+              <h5 class="m-0">🎭 Meme Style</h5>
+              <small class="text-muted">Learn with coding humor</small>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="style-card p-3 text-center" onclick="setStyle('story', this)">
+              <h5 class="m-0">📖 Story Style</h5>
+              <small class="text-muted">Learn through engaging stories</small>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="style-card p-3 text-center" onclick="setStyle('real-life', this)">
+              <h5 class="m-0">🌐 Real Life</h5>
+              <small class="text-muted">Practical real-world examples</small>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -53,20 +133,20 @@
         <textarea id="userInput" class="form-control bg-dark text-light border-secondary" rows="4" placeholder="Type here..."></textarea>
       </div>
 
-      <button id="submitBtn" class="btn btn-primary btn-lg w-100" onclick="handleGenerate()">✨ Generate Result</button>
+      <button id="submitBtn" class="btn btn-gradient btn-lg w-100" onclick="handleGenerate()">✨ Generate Learning</button>
     </div>
 
-    <!-- Output Box -->
-    <div class="card p-4 mb-4 shadow d-none" id="outputCard">
-      <div class="d-flex justify-content-between align-items-center mb-2">
+    <!-- Output Result Section -->
+    <div class="main-card p-4 mb-4 d-none" id="outputCard">
+      <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="text-success m-0">MEMEMIND RESULT</h5>
-        <button class="btn btn-sm btn-outline-light" onclick="saveCurrentResult()">💾 Save to Repository</button>
+        <button class="btn btn-sm btn-outline-info" onclick="saveCurrentResult()">💾 Save to Repository</button>
       </div>
-      <div id="outputContent" class="output-box text-light"></div>
+      <div id="outputContent" class="output-box p-3 text-light"></div>
     </div>
 
-    <!-- Saved Repository Items Section -->
-    <div id="repositorySection" class="card p-4 shadow d-none">
+    <!-- Repository Saved Items Section -->
+    <div id="repositorySection" class="main-card p-4 d-none">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="text-info m-0">📁 Saved Repository & History</h4>
         <button class="btn btn-sm btn-outline-danger" onclick="clearRepository()">🗑️ Clear All</button>
@@ -81,10 +161,38 @@
     let selectedStyle = 'meme';
     let currentResult = '';
 
-    function switchTab(tab) {
+    // --- 3D Background Animation (Three.js) ---
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+    const geometry = new THREE.TorusKnotGeometry(10, 3, 100, 16);
+    const material = new THREE.MeshBasicMaterial({ color: 0x6366f1, wireframe: true });
+    const torusKnot = new THREE.Mesh(geometry, material);
+    scene.add(torusKnot);
+    camera.position.z = 30;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      torusKnot.rotation.x += 0.005;
+      torusKnot.rotation.y += 0.005;
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    // --- App Logic ---
+    function switchTab(tab, btn) {
       activeTab = tab;
-      document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
+      document.querySelectorAll('#featureTabs .nav-link').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
 
       const styleSel = document.getElementById('styleSelector');
       const inputLabel = document.getElementById('inputLabel');
@@ -109,10 +217,10 @@
       }
     }
 
-    function setStyle(style, btn) {
+    function setStyle(style, el) {
       selectedStyle = style;
-      document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      document.querySelectorAll('.style-card').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
     }
 
     async function handleGenerate() {
@@ -144,19 +252,15 @@
         });
 
         const data = await res.json();
-
-        if (!res.ok) throw new Error(data.error || 'Server Request Failed');
+        if (!res.ok) throw new Error(data.error || 'Server Error');
 
         currentResult = data.result;
 
-        // Convert Markdown formatting (### and **) to HTML
         let formatted = data.result
           .replace(/^### (.*$)/gim, '<h5 class="fw-bold text-info mb-2">$1</h5>')
           .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 
         outContent.innerHTML = `<div style="white-space: pre-wrap; line-height: 1.6;">${formatted}</div>`;
-
-        // Automatically save to local history
         saveToLocalStorage(activeTab, input, data.result);
 
       } catch (err) {
@@ -188,7 +292,7 @@
       }
 
       savedList.innerHTML = repo.map(item => `
-        <div class="card p-3 saved-card">
+        <div class="card p-3 bg-dark border-secondary">
           <div class="d-flex justify-content-between text-muted small mb-1">
             <span><strong>TYPE:</strong> ${item.type.toUpperCase()}</span>
             <span>${item.date}</span>
@@ -200,7 +304,7 @@
     }
 
     function clearRepository() {
-      if (confirm('Are you sure you want to clear repository history?')) {
+      if (confirm('Clear repository history?')) {
         localStorage.removeItem('mememind_repo');
         loadRepository();
       }
