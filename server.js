@@ -12,7 +12,7 @@ app.use(express.json());
 // Serve static files from root directory
 app.use(express.static(__dirname));
 
-// Updated Gemini API Helper Function
+// Fixed Gemini API Helper Function
 async function generateAIResponse(systemPrompt, userPrompt) {
   const apiKey = process.env.GEMINI_API_KEY;
 
@@ -20,30 +20,39 @@ async function generateAIResponse(systemPrompt, userPrompt) {
     return `[AI Response - Demo Mode]\n\n${systemPrompt}\n\nUser Question: ${userPrompt}\n\n(Note: Set GEMINI_API_KEY in Render Environment Variables.)`;
   }
 
-  try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey.trim()}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [{ text: `${systemPrompt}\n\nUser Request: ${userPrompt}` }]
-          }
-        ]
-      })
-    });
+  // List of fallback models if one fails
+  const models = ['gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-1.5-flash'];
+  let lastError = null;
 
-    const data = await response.json();
+  for (const model of models) {
+    try {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey.trim()}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text: `${systemPrompt}\n\nUser Request: ${userPrompt}` }]
+            }
+          ]
+        })
+      });
 
-    if (!response.ok) {
-      throw new Error(data.error?.message || 'Gemini API call failed.');
+      const data = await response.json();
+
+      if (response.ok && data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
+        return data.candidates[0].content.parts[0].text;
+      }
+      
+      if (data.error) {
+        lastError = data.error.message;
+      }
+    } catch (err) {
+      lastError = err.message;
     }
-
-    return data.candidates[0].content.parts[0].text;
-  } catch (error) {
-    console.error('Gemini API Error:', error);
-    throw new Error(`AI Error: ${error.message}`);
   }
+
+  throw new Error(`AI Error: ${lastError || 'All Gemini models failed to respond.'}`);
 }
 
 // 1. Explain Route
