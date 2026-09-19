@@ -1,15 +1,14 @@
 {
   "name": "mememind-ai",
   "version": "1.0.0",
-  "description": "MemeMind AI platform for CS learning and debugging",
+  "description": "MemeMind AI platform",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-  "@google/genai": "^0.1.1",
-  "cors": "^2.8.5",
-  "dotenv": "^16.4.5",
-  "express": "^4.19.2"
-}
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  }
 }
