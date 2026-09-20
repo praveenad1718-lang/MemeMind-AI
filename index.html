@@ -142,16 +142,16 @@
 
   <div class="main-container">
     
-    <!-- 1 & 2. MEMEMIND AI & Tagline -->
+    <!-- MEMEMIND AI & Tagline -->
     <div class="hero-section">
       <h1 class="app-title">MEMEMIND AI</h1>
       <div class="app-tagline">Learn • Remember • Revise</div>
     </div>
 
-    <!-- 3. Rotating Dotted 3D Brain Model -->
+    <!-- Rotating Dotted 3D Brain Model -->
     <div id="brain-canvas-container"></div>
 
-    <!-- Navigation Tabs for Explain, Debug, Quiz, Roadmap, Repository -->
+    <!-- Navigation Tabs -->
     <ul class="nav nav-pills nav-fill mb-3 p-1 glass-card" id="featureTabs">
       <li class="nav-item">
         <button class="nav-link active" onclick="switchTab('explain', this)">💡 Explain</button>
@@ -173,7 +173,6 @@
     <!-- Input & Mode Selection Card -->
     <div class="glass-card" id="mainInputCard">
       
-      <!-- 3 Learning Styles (Visible in Explain Mode) -->
       <div id="styleSelector" class="mb-3">
         <label class="form-label text-info fw-bold mb-2">CHOOSE EXPLANATION MODE</label>
         <div class="row g-2">
@@ -228,11 +227,14 @@
       </div>
     </div>
 
-    <!-- Repository Saved Items Section -->
+    <!-- Repository Saved Items Section with Delete Options -->
     <div id="repositorySection" class="glass-card d-none">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="text-info m-0">📁 Folders & Repository</h5>
-        <button class="btn btn-sm btn-outline-success" onclick="createNewFolder()">➕ New Folder</button>
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-success" onclick="createNewFolder()">➕ New Folder</button>
+          <button class="btn btn-sm btn-outline-danger" onclick="clearAllRepository()">🗑️ Clear All</button>
+        </div>
       </div>
       <div id="folderBadges" class="d-flex flex-wrap gap-2 mb-3"></div>
       <div id="savedList" class="d-flex flex-column gap-3"></div>
@@ -417,6 +419,24 @@
       loadRepository();
     }
 
+    // Specific item delete function
+    function deleteSavedItem(id) {
+      if (confirm('Are you sure you want to delete this saved chat?')) {
+        let repo = JSON.parse(localStorage.getItem('mememind_repo') || '[]');
+        repo = repo.filter(item => item.id !== id);
+        localStorage.setItem('mememind_repo', JSON.stringify(repo));
+        loadRepository();
+      }
+    }
+
+    // Clear all saved repository items
+    function clearAllRepository() {
+      if (confirm('Are you sure you want to clear all saved repository chats?')) {
+        localStorage.removeItem('mememind_repo');
+        loadRepository();
+      }
+    }
+
     function loadRepository() {
       const savedList = document.getElementById('savedList');
       let repo = JSON.parse(localStorage.getItem('mememind_repo') || '[]');
@@ -431,8 +451,9 @@
       }
 
       savedList.innerHTML = repo.map(item => `
-        <div class="card p-3 bg-dark border-secondary">
-          <div class="d-flex justify-content-between text-warning small mb-1">
+        <div class="card p-3 bg-dark border-secondary position-relative">
+          <button class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2 py-0 px-2" style="font-size: 0.75rem;" onclick="deleteSavedItem(${item.id})">🗑️ Delete</button>
+          <div class="d-flex justify-content-between text-warning small mb-1 pe-5">
             <span>📁 <strong>${item.folder || 'General'}</strong> | ${item.type.toUpperCase()}</span>
             <span>${item.date}</span>
           </div>
