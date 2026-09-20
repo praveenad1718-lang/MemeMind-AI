@@ -6,13 +6,13 @@
   <title>MEMEMIND AI - Learn. Remember. Revise.</title>
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Three.js for 3D Dotted Brain Background / Model -->
+  <!-- Three.js for 3D Dotted Brain Animation -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <!-- Marked.js for Markdown Formatting -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     body {
-      background-color: #050811;
+      background-color: #030712;
       color: #ffffff;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       overflow-x: hidden;
@@ -20,38 +20,36 @@
       padding-bottom: 50px;
     }
     .main-container {
-      max-width: 800px;
+      max-width: 850px;
       margin: 0 auto;
       padding: 20px;
       position: relative;
       z-index: 2;
     }
-    /* Hero Title Section */
     .hero-section {
       text-align: center;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
     }
     .app-title {
-      font-size: 2.8rem;
+      font-size: 2.5rem;
       font-weight: 900;
       letter-spacing: 2px;
       background: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 5px;
+      margin-bottom: 0px;
     }
     .app-tagline {
-      font-size: 1.1rem;
+      font-size: 1rem;
       color: #94a3b8;
       font-weight: 500;
       letter-spacing: 1px;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
     }
-    /* 3D Brain Container in Flow */
     #brain-canvas-container {
       width: 100%;
       height: 220px;
-      margin: 0 auto 20px auto;
+      margin: 0 auto 10px auto;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -59,15 +57,24 @@
     #brain-canvas-container canvas {
       outline: none;
     }
-    /* Cards & UI */
     .glass-card {
       background: rgba(15, 23, 42, 0.75);
       backdrop-filter: blur(14px);
       border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 16px;
       box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-      padding: 24px;
+      padding: 20px;
       margin-bottom: 20px;
+    }
+    .nav-pills .nav-link {
+      color: #cbd5e1;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .nav-pills .nav-link.active {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
     }
     .style-card {
       background: rgba(30, 41, 59, 0.6);
@@ -76,7 +83,7 @@
       cursor: pointer;
       transition: all 0.3s ease;
       text-align: center;
-      padding: 15px;
+      padding: 10px;
     }
     .style-card.active, .style-card:hover {
       border-color: #38bdf8;
@@ -102,7 +109,7 @@
       color: #f8fafc;
       padding: 20px;
       line-height: 1.7;
-      max-height: 450px;
+      max-height: 400px;
       overflow-y: auto;
     }
     .output-box h1, .output-box h2, .output-box h3 {
@@ -111,7 +118,23 @@
     }
     .bright-sub {
       color: #94a3b8;
+      font-size: 0.75rem;
+    }
+    .folder-badge {
+      cursor: pointer;
+      padding: 6px 14px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #f1f5f9;
       font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .folder-badge.active, .folder-badge:hover {
+      background: #6366f1;
+      color: white;
+      border-color: #818cf8;
     }
   </style>
 </head>
@@ -119,7 +142,7 @@
 
   <div class="main-container">
     
-    <!-- 1 & 2. Title and Tagline -->
+    <!-- 1 & 2. MEMEMIND AI & Tagline -->
     <div class="hero-section">
       <h1 class="app-title">MEMEMIND AI</h1>
       <div class="app-tagline">Learn • Remember • Revise</div>
@@ -128,60 +151,174 @@
     <!-- 3. Rotating Dotted 3D Brain Model -->
     <div id="brain-canvas-container"></div>
 
-    <!-- 4. Input & 3 Modes Section -->
-    <div class="glass-card">
-      <label class="form-label text-info fw-bold mb-3">CHOOSE EXPLANATION MODE</label>
-      <div class="row g-3 mb-4">
-        <div class="col-md-4">
-          <div class="style-card active" onclick="setStyle('meme', this)">
-            <h6 class="text-white fw-bold m-0">🎭 Meme Style</h6>
-            <small class="bright-sub">Coding humor & fun</small>
+    <!-- Navigation Tabs for Explain, Debug, Quiz, Roadmap, Repository -->
+    <ul class="nav nav-pills nav-fill mb-3 p-1 glass-card" id="featureTabs">
+      <li class="nav-item">
+        <button class="nav-link active" onclick="switchTab('explain', this)">💡 Explain</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" onclick="switchTab('debug', this)">🐛 Debug</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" onclick="switchTab('quiz', this)">🧠 Quiz</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" onclick="switchTab('roadmap', this)">🗺️ Roadmap</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" onclick="switchTab('repository', this)">📁 Repository</button>
+      </li>
+    </ul>
+
+    <!-- Input & Mode Selection Card -->
+    <div class="glass-card" id="mainInputCard">
+      
+      <!-- 3 Learning Styles (Visible in Explain Mode) -->
+      <div id="styleSelector" class="mb-3">
+        <label class="form-label text-info fw-bold mb-2">CHOOSE EXPLANATION MODE</label>
+        <div class="row g-2">
+          <div class="col-4">
+            <div class="style-card active" onclick="setStyle('meme', this)">
+              <h6 class="text-white fw-bold m-0 small">🎭 Meme</h6>
+              <small class="bright-sub">Fun & Humor</small>
+            </div>
           </div>
-        </div>
-        <div class="col-md-4">
-          <div class="style-card" onclick="setStyle('story', this)">
-            <h6 class="text-white fw-bold m-0">📖 Story Style</h6>
-            <small class="bright-sub">Engaging story narrative</small>
+          <div class="col-4">
+            <div class="style-card" onclick="setStyle('story', this)">
+              <h6 class="text-white fw-bold m-0 small">📖 Story</h6>
+              <small class="bright-sub">Narrative</small>
+            </div>
           </div>
-        </div>
-        <div class="col-md-4">
-          <div class="style-card" onclick="setStyle('real-life', this)">
-            <h6 class="text-white fw-bold m-0">🌐 Real Life</h6>
-            <small class="bright-sub">Practical real-world examples</small>
+          <div class="col-4">
+            <div class="style-card" onclick="setStyle('real-life', this)">
+              <h6 class="text-white fw-bold m-0 small">🌐 Real Life</h6>
+              <small class="bright-sub">Practical</small>
+            </div>
           </div>
         </div>
       </div>
 
       <div class="mb-3">
-        <label class="form-label text-white fw-bold">Enter Doubt / Topic / Code:</label>
+        <label id="inputLabel" class="form-label text-white fw-bold small">Enter Topic or Question:</label>
         <textarea id="userInput" class="form-control bg-dark text-white border-secondary" rows="3" placeholder="Type your doubt or concept here..."></textarea>
       </div>
 
-      <button id="submitBtn" class="btn btn-gradient w-100" onclick="handleGenerate()">✨ Generate Explanation</button>
+      <button id="submitBtn" class="btn btn-gradient w-100" onclick="handleGenerate()">✨ Generate Learning</button>
     </div>
 
     <!-- Output & Re-ask Doubt Box Section -->
     <div class="glass-card d-none" id="outputCard">
-      <h5 class="text-success fw-bold mb-3">🧠 MEMEMIND EXPLANATION</h5>
-      <div id="outputContent" class="output-box mb-4"></div>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="text-success fw-bold m-0">MEMEMIND RESULT</h6>
+        <div class="d-flex gap-2 align-items-center">
+          <select id="saveFolderSelect" class="form-select form-select-sm bg-dark text-white border-secondary"></select>
+          <button class="btn btn-sm btn-info text-nowrap fw-bold" onclick="saveCurrentResult()">💾 Save</button>
+        </div>
+      </div>
+
+      <div id="outputContent" class="output-box mb-3"></div>
 
       <!-- Follow-up / Re-ask doubt box -->
-      <div class="pt-3 border-top border-secondary">
+      <div class="pt-2 border-top border-secondary">
         <label class="form-label text-warning fw-bold small">💬 Re-ask doubt or ask follow-up:</label>
         <div class="input-group">
-          <input type="text" id="followUpInput" class="form-control bg-dark text-white border-secondary" placeholder="Ask your doubt about this explanation...">
+          <input type="text" id="followUpInput" class="form-control bg-dark text-white border-secondary" placeholder="Ask your doubt...">
           <button class="btn btn-outline-info fw-bold" onclick="handleFollowUp()" id="followUpBtn">Ask Doubt</button>
         </div>
       </div>
     </div>
 
+    <!-- Repository Saved Items Section -->
+    <div id="repositorySection" class="glass-card d-none">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="text-info m-0">📁 Folders & Repository</h5>
+        <button class="btn btn-sm btn-outline-success" onclick="createNewFolder()">➕ New Folder</button>
+      </div>
+      <div id="folderBadges" class="d-flex flex-wrap gap-2 mb-3"></div>
+      <div id="savedList" class="d-flex flex-column gap-3"></div>
+    </div>
+
   </div>
 
   <script>
+    let activeTab = 'explain';
     let selectedStyle = 'meme';
     let currentResult = '';
     let rawMarkdownResult = '';
     let currentInput = '';
+    let selectedFolderView = 'All';
+
+    let defaultFolders = ['Python', 'Java', 'DataStructures', 'AI', 'Mathematics'];
+
+    function getFolders() {
+      let custom = JSON.parse(localStorage.getItem('mememind_folders') || '[]');
+      return Array.from(new Set([...defaultFolders, ...custom]));
+    }
+
+    function populateFolderSelect() {
+      const select = document.getElementById('saveFolderSelect');
+      const folders = getFolders();
+      select.innerHTML = folders.map(f => `<option value="${f}">${f}</option>`).join('');
+    }
+
+    function renderFolderBadges() {
+      const container = document.getElementById('folderBadges');
+      const folders = getFolders();
+      let html = `<span class="folder-badge ${selectedFolderView === 'All' ? 'active' : ''}" onclick="filterByFolder('All')">📂 All</span>`;
+      html += folders.map(f => `<span class="folder-badge ${selectedFolderView === f ? 'active' : ''}" onclick="filterByFolder('${f}')">📁 ${f}</span>`).join('');
+      container.innerHTML = html;
+    }
+
+    function createNewFolder() {
+      const folderName = prompt('Enter New Repository Name:');
+      if (folderName && folderName.trim() !== '') {
+        let cleanName = folderName.trim();
+        let custom = JSON.parse(localStorage.getItem('mememind_folders') || '[]');
+        if (!custom.includes(cleanName) && !defaultFolders.includes(cleanName)) {
+          custom.push(cleanName);
+          localStorage.setItem('mememind_folders', JSON.stringify(custom));
+        }
+        populateFolderSelect();
+        renderFolderBadges();
+        filterByFolder(cleanName);
+      }
+    }
+
+    function switchTab(tab, btn) {
+      activeTab = tab;
+      document.querySelectorAll('#featureTabs .nav-link').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const mainInputCard = document.getElementById('mainInputCard');
+      const styleSel = document.getElementById('styleSelector');
+      const repoSection = document.getElementById('repositorySection');
+      const inputLabel = document.getElementById('inputLabel');
+      const userInput = document.getElementById('userInput');
+
+      repoSection.classList.add('d-none');
+      mainInputCard.classList.remove('d-none');
+      styleSel.classList.add('d-none');
+
+      if (tab === 'explain') {
+        styleSel.classList.remove('d-none');
+        inputLabel.innerText = 'Enter Topic or Question:';
+        userInput.placeholder = 'Type your topic here...';
+      } else if (tab === 'debug') {
+        inputLabel.innerText = 'Paste Code to Debug:';
+        userInput.placeholder = 'Paste your buggy code here...';
+      } else if (tab === 'quiz') {
+        inputLabel.innerText = 'Enter Topic for Quiz:';
+        userInput.placeholder = 'Enter topic to generate quiz questions...';
+      } else if (tab === 'roadmap') {
+        inputLabel.innerText = 'Enter Learning Goal or Subject:';
+        userInput.placeholder = 'e.g., Full Stack Developer, Python...';
+      } else if (tab === 'repository') {
+        mainInputCard.classList.add('d-none');
+        repoSection.classList.remove('d-none');
+        renderFolderBadges();
+        loadRepository();
+      }
+    }
 
     function setStyle(style, el) {
       selectedStyle = style;
@@ -191,7 +328,7 @@
 
     async function handleGenerate() {
       const input = document.getElementById('userInput').value.trim();
-      if (!input) return alert('Please enter a doubt or topic!');
+      if (!input) return alert('Please enter input text!');
 
       currentInput = input;
       const outCard = document.getElementById('outputCard');
@@ -199,14 +336,16 @@
       const submitBtn = document.getElementById('submitBtn');
 
       outCard.classList.remove('d-none');
-      outContent.innerHTML = '<div class="spinner-border text-info" role="status"></div> Generating AI explanation...';
+      outContent.innerHTML = '<div class="spinner-border text-info spinner-border-sm" role="status"></div> Generating AI response...';
       submitBtn.disabled = true;
 
+      populateFolderSelect();
+
       try {
-        const res = await fetch('/api/explain', {
+        const res = await fetch(`/api/${activeTab}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: input, style: selectedStyle })
+          body: JSON.stringify({ prompt: input, code: input, concept: input, style: selectedStyle })
         });
 
         const data = await res.json();
@@ -234,7 +373,7 @@
       followUpBtn.disabled = true;
 
       try {
-        const res = await fetch('/api/explain', {
+        const res = await fetch(`/api/${activeTab}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ prompt: `Context: ${currentResult}\n\nDoubt: ${doubt}`, style: selectedStyle })
@@ -254,7 +393,56 @@
       }
     }
 
-    // 3D Rotating Dotted Brain Animation using Three.js
+    function saveCurrentResult() {
+      if (!currentResult) return alert('No result to save!');
+      const selectedFolder = document.getElementById('saveFolderSelect').value;
+
+      let repo = JSON.parse(localStorage.getItem('mememind_repo') || '[]');
+      repo.unshift({
+        id: Date.now(),
+        folder: selectedFolder,
+        type: activeTab,
+        prompt: currentInput,
+        response: currentResult,
+        date: new Date().toLocaleString()
+      });
+
+      localStorage.setItem('mememind_repo', JSON.stringify(repo));
+      alert(`Saved under '${selectedFolder}' repository!`);
+    }
+
+    function filterByFolder(folderName) {
+      selectedFolderView = folderName;
+      renderFolderBadges();
+      loadRepository();
+    }
+
+    function loadRepository() {
+      const savedList = document.getElementById('savedList');
+      let repo = JSON.parse(localStorage.getItem('mememind_repo') || '[]');
+
+      if (selectedFolderView !== 'All') {
+        repo = repo.filter(item => item.folder === selectedFolderView);
+      }
+
+      if (repo.length === 0) {
+        savedList.innerHTML = `<p class="text-warning small">No items saved in '${selectedFolderView}' repository.</p>`;
+        return;
+      }
+
+      savedList.innerHTML = repo.map(item => `
+        <div class="card p-3 bg-dark border-secondary">
+          <div class="d-flex justify-content-between text-warning small mb-1">
+            <span>📁 <strong>${item.folder || 'General'}</strong> | ${item.type.toUpperCase()}</span>
+            <span>${item.date}</span>
+          </div>
+          <p class="fw-bold text-info mb-1 small">Q: ${item.prompt}</p>
+          <div class="text-white small" style="white-space: pre-wrap;">${item.response}</div>
+        </div>
+      `).join('');
+    }
+
+    // 3D Rotating Dotted Brain Animation
     const container = document.getElementById('brain-canvas-container');
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
@@ -264,32 +452,29 @@
 
     const brainGroup = new THREE.Group();
 
-    // Dotted node and wireframe material matching reference image
-    const wireMaterial = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.3 });
-    const coreMaterial = new THREE.MeshBasicMaterial({ color: 0x6366f1, wireframe: true, transparent: true, opacity: 0.4 });
+    const wireMaterial = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.35 });
+    const coreMaterial = new THREE.MeshBasicMaterial({ color: 0x6366f1, wireframe: true, transparent: true, opacity: 0.45 });
 
-    // Left and Right hemispheres
-    const leftGeo = new THREE.SphereGeometry(6, 20, 20);
+    const leftGeo = new THREE.SphereGeometry(5.5, 18, 18);
     leftGeo.scale(1.3, 1.1, 1.5);
     const leftMesh = new THREE.Mesh(leftGeo, wireMaterial);
-    leftMesh.position.x = -3.2;
+    leftMesh.position.x = -2.8;
     brainGroup.add(leftMesh);
 
-    const rightGeo = new THREE.SphereGeometry(6, 20, 20);
+    const rightGeo = new THREE.SphereGeometry(5.5, 18, 18);
     rightGeo.scale(1.3, 1.1, 1.5);
     const rightMesh = new THREE.Mesh(rightGeo, coreMaterial);
-    rightMesh.position.x = 3.2;
+    rightMesh.position.x = 2.8;
     brainGroup.add(rightMesh);
 
-    // Glowing Dotted Synapse Particles
-    const particleCount = 100;
+    const particleCount = 120;
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 3);
 
     for (let i = 0; i < particleCount * 3; i += 3) {
-      positions[i] = (Math.random() - 0.5) * 13;     // x
-      positions[i + 1] = (Math.random() - 0.5) * 8;  // y
-      positions[i + 2] = (Math.random() - 0.5) * 14; // z
+      positions[i] = (Math.random() - 0.5) * 12;
+      positions[i + 1] = (Math.random() - 0.5) * 7;
+      positions[i + 2] = (Math.random() - 0.5) * 13;
     }
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
@@ -297,17 +482,17 @@
       color: 0x00ffff,
       size: 0.45,
       transparent: true,
-      opacity: 0.9
+      opacity: 0.95
     });
     const particleSystem = new THREE.Points(geometry, particleMaterial);
     brainGroup.add(particleSystem);
 
     scene.add(brainGroup);
-    camera.position.z = 16;
+    camera.position.z = 15;
 
     function animate() {
       requestAnimationFrame(animate);
-      brainGroup.rotation.y += 0.003;
+      brainGroup.rotation.y += 0.0035;
       brainGroup.rotation.x = Math.sin(Date.now() * 0.001) * 0.08;
       renderer.render(scene, camera);
     }
