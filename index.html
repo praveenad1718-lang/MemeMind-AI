@@ -6,7 +6,7 @@
   <title>MEMEMIND AI - Learn. Remember. Revise.</title>
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Three.js for 3D Dotted Brain Animation -->
+  <!-- Three.js for 3D Digital Network Sphere Animation -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <!-- Marked.js for Markdown Formatting -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -46,7 +46,7 @@
       letter-spacing: 1px;
       margin-bottom: 10px;
     }
-    #brain-canvas-container {
+    #sphere-canvas-container {
       width: 100%;
       height: 240px;
       margin: 0 auto 10px auto;
@@ -54,7 +54,7 @@
       justify-content: center;
       align-items: center;
     }
-    #brain-canvas-container canvas {
+    #sphere-canvas-container canvas {
       outline: none;
     }
     .glass-card {
@@ -148,8 +148,8 @@
       <div class="app-tagline">Learn • Remember • Revise</div>
     </div>
 
-    <!-- Rotating Brain 3D Animation Container -->
-    <div id="brain-canvas-container"></div>
+    <!-- 3D Digital Network Sphere Container -->
+    <div id="sphere-canvas-container"></div>
 
     <!-- Navigation Tabs -->
     <ul class="nav nav-pills nav-fill mb-3 p-1 glass-card" id="featureTabs">
@@ -461,77 +461,72 @@
       `).join('');
     }
 
-    // --- PROPER 3D SIDE-PROFILE BRAIN WIREFRAME ANIMATION ---
-    const container = document.getElementById('brain-canvas-container');
+    // --- 3D DIGITAL NETWORK SPHERE ANIMATION ---
+    const container = document.getElementById('sphere-canvas-container');
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
     container.appendChild(renderer.domElement);
 
-    const brainGroup = new THREE.Group();
+    const sphereGroup = new THREE.Group();
 
-    // Accurate Side Profile Brain Contour Shape
-    const brainShape = new THREE.Shape();
-    brainShape.moveTo(0, -1.2);
-    brainShape.bezierCurveTo(0.6, -1.5, 1.0, -2.2, 0.8, -2.8); // Brain stem base
-    brainShape.bezierCurveTo(0.3, -3.2, -0.6, -2.8, -0.8, -2.0); // Stem curve
-    brainShape.bezierCurveTo(-2.0, -2.0, -3.2, -1.2, -3.5, 0.2); // Cerebellum back
-    brainShape.bezierCurveTo(-3.8, 1.8, -2.2, 3.2, 0.2, 3.2);  // Occipital & Top Crown
-    brainShape.bezierCurveTo(2.2, 3.2, 3.5, 1.8, 3.5, 0.2);   // Parietal & Frontal
-    brainShape.bezierCurveTo(3.5, -1.2, 2.0, -2.0, 1.0, -1.2); // Frontal lobe lower curve
-    brainShape.closePath();
-
-    const extrudeSettings = {
-      steps: 1,
-      depth: 3.2,          // Proper thickness so it's not a flat disc
-      bevelEnabled: true,
-      bevelThickness: 0.9,
-      bevelSize: 0.9,
-      bevelSegments: 5
-    };
-
-    const brainGeometry = new THREE.ExtrudeGeometry(brainShape, extrudeSettings);
-    brainGeometry.center();
-
-    const brainMaterial = new THREE.MeshBasicMaterial({
+    // 1. Outer Wireframe Icosahedron Sphere
+    const outerGeo = new THREE.IcosahedronGeometry(3.2, 2);
+    const outerMat = new THREE.MeshBasicMaterial({
       color: 0x38bdf8,
       wireframe: true,
       transparent: true,
-      opacity: 0.42
+      opacity: 0.45
     });
+    const outerSphere = new THREE.Mesh(outerGeo, outerMat);
+    sphereGroup.add(outerSphere);
 
-    const brainMesh = new THREE.Mesh(brainGeometry, brainMaterial);
-    brainMesh.scale.set(1.0, 1.0, 1.0);
-    brainGroup.add(brainMesh);
+    // 2. Inner Core Tech Sphere
+    const innerGeo = new THREE.IcosahedronGeometry(1.8, 1);
+    const innerMat = new THREE.MeshBasicMaterial({
+      color: 0x818cf8,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.35
+    });
+    const innerSphere = new THREE.Mesh(innerGeo, innerMat);
+    sphereGroup.add(innerSphere);
 
-    // Glowing Synapse Particles inside the brain volume
-    const particleCount = 140;
-    const pGeometry = new THREE.BufferGeometry();
+    // 3. Glowing Network Nodes & Particles (Cyan & Orange accents like reference)
+    const particleCount = 200;
+    const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 3);
 
     for (let i = 0; i < particleCount * 3; i += 3) {
-      positions[i] = (Math.random() - 0.5) * 4.2;     // X
-      positions[i + 1] = (Math.random() - 0.5) * 3.8;  // Y
-      positions[i + 2] = (Math.random() - 0.5) * 3.0;  // Z
+      const u = Math.random();
+      const v = Math.random();
+      const theta = u * 2.0 * Math.PI;
+      const phi = Math.acos(2.0 * v - 1.0);
+      const r = 2.5 + Math.random() * 1.2;
+
+      positions[i] = r * Math.sin(phi) * Math.cos(theta);
+      positions[i + 1] = r * Math.sin(phi) * Math.sin(theta);
+      positions[i + 2] = r * Math.cos(phi);
     }
-    pGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
     const particleMaterial = new THREE.PointsMaterial({
-      color: 0x22d3ee,
-      size: 0.32,
+      color: 0x38bdf8,
+      size: 0.22,
       transparent: true,
       opacity: 0.9
     });
-    const particleSystem = new THREE.Points(pGeometry, particleMaterial);
-    brainGroup.add(particleSystem);
+    const particleSystem = new THREE.Points(geometry, particleMaterial);
+    sphereGroup.add(particleSystem);
 
-    scene.add(brainGroup);
-    camera.position.z = 8.5;
+    scene.add(sphereGroup);
+    camera.position.z = 7.5;
 
     function animate() {
       requestAnimationFrame(animate);
-      brainGroup.rotation.y += 0.004; // Smooth rotation to reveal 3D depth and profile clearly
+      sphereGroup.rotation.y += 0.005;
+      sphereGroup.rotation.x += 0.002;
       renderer.render(scene, camera);
     }
     animate();
