@@ -48,7 +48,7 @@
     }
     #brain-canvas-container {
       width: 100%;
-      height: 220px;
+      height: 240px;
       margin: 0 auto 10px auto;
       display: flex;
       justify-content: center;
@@ -148,7 +148,7 @@
       <div class="app-tagline">Learn • Remember • Revise</div>
     </div>
 
-    <!-- Rotating Dotted 3D Brain Model -->
+    <!-- Rotating Brain 3D Animation Container -->
     <div id="brain-canvas-container"></div>
 
     <!-- Navigation Tabs -->
@@ -419,7 +419,6 @@
       loadRepository();
     }
 
-    // Specific item delete function
     function deleteSavedItem(id) {
       if (confirm('Are you sure you want to delete this saved chat?')) {
         let repo = JSON.parse(localStorage.getItem('mememind_repo') || '[]');
@@ -429,7 +428,6 @@
       }
     }
 
-    // Clear all saved repository items
     function clearAllRepository() {
       if (confirm('Are you sure you want to clear all saved repository chats?')) {
         localStorage.removeItem('mememind_repo');
@@ -450,7 +448,7 @@
         return;
       }
 
-      savedList.innerHTML = repo.map(item => `
+      savedList.innerHTML = repo.item.map ? '' : repo.map(item => `
         <div class="card p-3 bg-dark border-secondary position-relative">
           <button class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2 py-0 px-2" style="font-size: 0.75rem;" onclick="deleteSavedItem(${item.id})">🗑️ Delete</button>
           <div class="d-flex justify-content-between text-warning small mb-1 pe-5">
@@ -463,7 +461,7 @@
       `).join('');
     }
 
-    // 3D Rotating Dotted Brain Animation
+    // --- ACCURATE 3D BRAIN STRUCTURE ANIMATION ---
     const container = document.getElementById('brain-canvas-container');
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
@@ -473,48 +471,66 @@
 
     const brainGroup = new THREE.Group();
 
-    const wireMaterial = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.35 });
-    const coreMaterial = new THREE.MeshBasicMaterial({ color: 0x6366f1, wireframe: true, transparent: true, opacity: 0.45 });
+    // Custom Brain Hemispheres using scaled and shaped geometries
+    const wireMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.3 });
+    const coreMat = new THREE.MeshBasicMaterial({ color: 0x818cf8, wireframe: true, transparent: true, opacity: 0.4 });
 
-    const leftGeo = new THREE.SphereGeometry(5.5, 18, 18);
-    leftGeo.scale(1.3, 1.1, 1.5);
-    const leftMesh = new THREE.Mesh(leftGeo, wireMaterial);
-    leftMesh.position.x = -2.8;
-    brainGroup.add(leftMesh);
+    // Left Hemisphere
+    const leftGeo = new THREE.IcosahedronGeometry(4.2, 2);
+    leftGeo.scale(1.3, 1.0, 1.6);
+    const leftBrain = new THREE.Mesh(leftGeo, wireMat);
+    leftBrain.position.set(-1.8, 0.2, 0);
+    brainGroup.add(leftBrain);
 
-    const rightGeo = new THREE.SphereGeometry(5.5, 18, 18);
-    rightGeo.scale(1.3, 1.1, 1.5);
-    const rightMesh = new THREE.Mesh(rightGeo, coreMaterial);
-    rightMesh.position.x = 2.8;
-    brainGroup.add(rightMesh);
+    // Right Hemisphere
+    const rightGeo = new THREE.IcosahedronGeometry(4.2, 2);
+    rightGeo.scale(1.3, 1.0, 1.6);
+    const rightBrain = new THREE.Mesh(rightGeo, coreMat);
+    rightBrain.position.set(1.8, 0.2, 0);
+    brainGroup.add(rightBrain);
 
-    const particleCount = 120;
+    // Cerebellum (Back/Bottom part of brain)
+    const cereGeo = new THREE.SphereGeometry(2.2, 12, 12);
+    cereGeo.scale(1.4, 0.9, 1.1);
+    const cerebellum = new THREE.Mesh(cereGeo, wireMat);
+    cerebellum.position.set(0, -2.0, -2.2);
+    brainGroup.add(cerebellum);
+
+    // Brain Stem
+    const stemGeo = new THREE.CylinderGeometry(0.8, 0.5, 3.0, 10);
+    const stemMesh = new THREE.Mesh(stemGeo, coreMat);
+    stemMesh.position.set(0, -3.2, -0.5);
+    stemMesh.rotation.x = 0.25;
+    brainGroup.add(stemMesh);
+
+    // Glowing Synapse Nodes (Particles)
+    const particleCount = 100;
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 3);
 
     for (let i = 0; i < particleCount * 3; i += 3) {
-      positions[i] = (Math.random() - 0.5) * 12;
-      positions[i + 1] = (Math.random() - 0.5) * 7;
-      positions[i + 2] = (Math.random() - 0.5) * 13;
+      positions[i] = (Math.random() - 0.5) * 8.5;
+      positions[i + 1] = (Math.random() - 0.5) * 6.5;
+      positions[i + 2] = (Math.random() - 0.5) * 9.5;
     }
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
     const particleMaterial = new THREE.PointsMaterial({
       color: 0x00ffff,
-      size: 0.45,
+      size: 0.35,
       transparent: true,
-      opacity: 0.95
+      opacity: 0.9
     });
     const particleSystem = new THREE.Points(geometry, particleMaterial);
     brainGroup.add(particleSystem);
 
     scene.add(brainGroup);
-    camera.position.z = 15;
+    camera.position.z = 13;
 
     function animate() {
       requestAnimationFrame(animate);
-      brainGroup.rotation.y += 0.0035;
-      brainGroup.rotation.x = Math.sin(Date.now() * 0.001) * 0.08;
+      brainGroup.rotation.y += 0.003;
+      brainGroup.rotation.x = Math.sin(Date.now() * 0.001) * 0.06;
       renderer.render(scene, camera);
     }
     animate();
