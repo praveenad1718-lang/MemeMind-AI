@@ -104,7 +104,6 @@
     .bright-text {
       color: #94a3b8 !important;
     }
-    /* Custom scrollbar for output-box */
     .output-box::-webkit-scrollbar {
       width: 8px;
     }
@@ -116,14 +115,11 @@
       background: #334155;
       border-radius: 12px;
     }
-    .output-box::-webkit-scrollbar-thumb:hover {
-      background: #475569;
-    }
   </style>
 </head>
 <body>
 
-  <!-- 3D Brain Background Canvas -->
+  <!-- 3D Brain Background Canvas with Glowing Nodes -->
   <div id="canvas-container"></div>
 
   <div class="container py-4">
@@ -238,7 +234,6 @@
     let currentInput = '';
     let selectedFolderView = 'All';
 
-    // Define default folders for Engineering & Arts/Science students
     let defaultFolders = ['Python', 'Java', 'English', 'History', 'Commerce', 'Mathematics', 'Physics'];
 
     function getFolders() {
@@ -250,7 +245,6 @@
       const select = document.getElementById('saveFolderSelect');
       const folders = getFolders();
       select.innerHTML = folders.map(f => `<option value="${f}">${f}</option>`).join('');
-      // Ensure 'Python' is selected by default if it exists
       const defaultOpt = Array.from(select.options).find(opt => opt.value === 'Python');
       if(defaultOpt) select.value = 'Python';
     }
@@ -324,7 +318,6 @@
       el.classList.add('active');
     }
 
-    // Handle initial generation with AI API
     async function handleGenerate() {
       const input = document.getElementById('userInput').value.trim();
       if (!input) return alert('Please enter input text!');
@@ -341,7 +334,174 @@
       populateFolderSelect();
 
       try {
-        // Simulated API call (replace with your actual backend endpoint)
         const res = await fetch(`/api/${activeTab}`, {
           method: 'POST',
-          headers: { 'Content-
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: input, code: input, concept: input, query: input, style: selectedStyle })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Server Error');
+
+        rawMarkdownResult = data.result;
+        currentResult = data.result;
+        outContent.innerHTML = marked.parse(data.result);
+
+      } catch (err) {
+        outContent.innerHTML = `<span class="text-danger">Error: ${err.message}</span>`;
+      } finally {
+        submitBtn.disabled = false;
+      }
+    }
+
+    async function handleFollowUp() {
+      const doubt = document.getElementById('followUpInput').value.trim();
+      if (!doubt) return alert('Please enter your doubt or follow-up question!');
+
+      const outContent = document.getElementById('outputContent');
+      const followUpBtn = document.getElementById('followUpBtn');
+
+      rawMarkdownResult += `\n\n### 💬 Doubt: ${doubt}\n`;
+      outContent.innerHTML = marked.parse(rawMarkdownResult) + `<div class="spinner-border spinner-border-sm text-info mt-2" role="status"></div> Thinking about your doubt...`;
+      followUpBtn.disabled = true;
+
+      try {
+        const res = await fetch(`/api/${activeTab}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: `Context: ${currentResult}\n\nDoubt/Follow-up: ${doubt}`, style: selectedStyle })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Server Error');
+
+        rawMarkdownResult += `\n${data.result}`;
+        currentResult += `\n\nDoubt: ${doubt}\nAnswer: ${data.result}`;
+        outContent.innerHTML = marked.parse(rawMarkdownResult);
+        document.getElementById('followUpInput').value = '';
+
+      } catch (err) {
+        outContent.innerHTML += `<br><span class="text-danger">Error: ${err.message}</span>`;
+      } finally {
+        followUpBtn.disabled = false;
+      }
+    }
+
+    function saveCurrentResult() {
+      if (!currentResult) return alert('No result to save!');
+      const selectedFolder = document.getElementById('saveFolderSelect').value;
+
+      let repo = JSON.parse(localStorage.getItem('mememind_repo') || '[]');
+      repo.unshift({
+        id: Date.now(),
+        folder: selectedFolder,
+        type: activeTab,
+        prompt: currentInput,
+        response: currentResult,
+        date: new Date().toLocaleString()
+      });
+
+      localStorage.setItem('mememind_repo', JSON.stringify(repo));
+      alert(`Saved under '${selectedFolder}' repository!`);
+    }
+
+    function filterByFolder(folderName) {
+      selectedFolderView = folderName;
+      renderFolderBadges();
+      loadRepository();
+    }
+
+    function loadRepository() {
+      const savedList = document.getElementById('savedList');
+      let repo = JSON.parse(localStorage.getItem('mememind_repo') || '[]');
+
+      if (selectedFolderView !== 'All') {
+        repo = repo.filter(item => item.folder === selectedFolderView);
+      }
+
+      if (repo.length === 0) {
+        savedList.innerHTML = `<p class="text-warning">No items saved in '${selectedFolderView}' repository.</p>`;
+        return;
+      }
+
+      savedList.innerHTML = repo.map(item => `
+        <div class="card p-3 bg-dark border-secondary">
+          <div class="d-flex justify-content-between text-warning small mb-1">
+            <span>📁 <strong>${item.folder || 'General'}</strong> | ${item.type.toUpperCase()}</span>
+            <span>${item.date}</span>
+          </div>
+          <p class="fw-bold text-info mb-1">Q: ${item.prompt}</p>
+          <div class="text-white small" style="white-space: pre-wrap;">${item.response}</div>
+        </div>
+      `).join('');
+    }
+
+    // 3D Glowing Blue Brain Background Setup matching user's reference image
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+    const brainGroup = new THREE.Group();
+
+    // Glowing wireframe and node dot material
+    const materialWire = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.35 });
+    const materialCore = new THREE.MeshBasicMaterial({ color: 0x6366f1, wireframe: true, transparent: true, opacity: 0.45 });
+
+    // Left & Right Hemispheres resembling a brain shape
+    const leftGeo = new THREE.SphereGeometry(8.5, 24, 24);
+    leftGeo.scale(1.35, 1.05, 1.6);
+    const leftMesh = new THREE.Mesh(leftGeo, materialWire);
+    leftMesh.position.x = -4.2;
+    brainGroup.add(leftMesh);
+
+    const rightGeo = new THREE.SphereGeometry(8.5, 24, 24);
+    rightGeo.scale(1.35, 1.05, 1.6);
+    const rightMesh = new THREE.Mesh(rightGeo, materialCore);
+    rightMesh.position.x = 4.2;
+    brainGroup.add(rightMesh);
+
+    // Glowing synapes nodes (Blue dots across the brain)
+    const particleCount = 120;
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 3);
+
+    for (let i = 0; i < particleCount * 3; i += 3) {
+      positions[i] = (Math.random() - 0.5) * 16;     // x
+      positions[i + 1] = (Math.random() - 0.5) * 10; // y
+      positions[i + 2] = (Math.random() - 0.5) * 18; // z
+    }
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+    // Create glowing white-blue dot sprites/points
+    const particleMaterial = new THREE.PointsMaterial({
+      color: 0x00ffff,
+      size: 0.5,
+      transparent: true,
+      opacity: 0.85
+    });
+    const particleSystem = new THREE.Points(geometry, particleMaterial);
+    brainGroup.add(particleSystem);
+
+    scene.add(brainGroup);
+    
+    camera.position.z = 20;
+    brainGroup.position.y = 0.5;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      brainGroup.rotation.y += 0.0025;
+      brainGroup.rotation.x = Math.sin(Date.now() * 0.001) * 0.1;
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
