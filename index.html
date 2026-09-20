@@ -8,6 +8,8 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Three.js for 3D Background -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- Marked.js for Markdown Formatting -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     body {
       background-color: #050811;
@@ -23,6 +25,7 @@
       height: 100vh;
       z-index: -1;
       pointer-events: none;
+      opacity: 0.95;
     }
     .main-card {
       background: rgba(15, 23, 42, 0.75);
@@ -46,10 +49,15 @@
       border-radius: 12px;
       cursor: pointer;
       transition: all 0.3s ease;
+      min-height: 100px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
     .style-card.active, .style-card:hover {
       border-color: #38bdf8;
-      background: rgba(56, 189, 248, 0.2);
+      background: rgba(56, 189, 248, 0.25);
+      transform: translateY(-3px);
     }
     .btn-gradient {
       background: linear-gradient(135deg, #a855f7, #6366f1);
@@ -66,6 +74,17 @@
       border: 1px solid #30363d;
       border-radius: 12px;
       color: #f8fafc;
+      line-height: 1.7;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    .output-box h1, .output-box h2, .output-box h3 {
+      color: #38bdf8;
+      margin-top: 15px;
+      margin-bottom: 10px;
+    }
+    .output-box hr {
+      border-color: #334155;
     }
     .folder-badge {
       cursor: pointer;
@@ -85,6 +104,21 @@
     .bright-text {
       color: #94a3b8 !important;
     }
+    /* Custom scrollbar for output-box */
+    .output-box::-webkit-scrollbar {
+      width: 8px;
+    }
+    .output-box::-webkit-scrollbar-track {
+      background: rgba(10, 15, 25, 0.85);
+      border-radius: 12px;
+    }
+    .output-box::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 12px;
+    }
+    .output-box::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
   </style>
 </head>
 <body>
@@ -95,11 +129,11 @@
   <div class="container py-4">
     <!-- Header with Tagline -->
     <header class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary">
-      <div>
+      <div class="d-flex align-items-center gap-3">
         <h2 class="text-info fw-bold m-0">🧠 MEMEMIND AI</h2>
-        <small class="text-warning fw-semibold">Learn. Remember. Code. (Multi-Disciplinary Repository)</small>
+        <span class="badge bg-success px-3 py-2 fw-bold">System Online</span>
       </div>
-      <span class="badge bg-success px-3 py-2 fw-bold">System Online</span>
+      <small class="text-warning fw-semibold">Learn. Remember. Code. (Multi-Disciplinary Repository)</small>
     </header>
 
     <!-- Navigation Tabs -->
@@ -184,8 +218,8 @@
     <!-- Repository Saved Items Section -->
     <div id="repositorySection" class="main-card p-4 d-none">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="text-info fw-bold m-0">📁 Folders & Repositories</h4>
-        <button class="btn btn-sm btn-outline-success fw-bold" onclick="createNewFolder()">➕ New Folder</button>
+        <h4 class="text-info m-0">📁 Folders & Repositories</h4>
+        <button class="btn btn-sm btn-outline-success" onclick="createNewFolder()">➕ New Folder</button>
       </div>
 
       <!-- Folder Selection Badges -->
@@ -200,9 +234,11 @@
     let activeTab = 'explain';
     let selectedStyle = 'meme';
     let currentResult = '';
+    let rawMarkdownResult = '';
     let currentInput = '';
     let selectedFolderView = 'All';
 
+    // Define default folders for Engineering & Arts/Science students
     let defaultFolders = ['Python', 'Java', 'English', 'History', 'Commerce', 'Mathematics', 'Physics'];
 
     function getFolders() {
@@ -214,6 +250,9 @@
       const select = document.getElementById('saveFolderSelect');
       const folders = getFolders();
       select.innerHTML = folders.map(f => `<option value="${f}">${f}</option>`).join('');
+      // Ensure 'Python' is selected by default if it exists
+      const defaultOpt = Array.from(select.options).find(opt => opt.value === 'Python');
+      if(defaultOpt) select.value = 'Python';
     }
 
     function renderFolderBadges() {
@@ -285,6 +324,7 @@
       el.classList.add('active');
     }
 
+    // Handle initial generation with AI API
     async function handleGenerate() {
       const input = document.getElementById('userInput').value.trim();
       if (!input) return alert('Please enter input text!');
@@ -301,155 +341,7 @@
       populateFolderSelect();
 
       try {
+        // Simulated API call (replace with your actual backend endpoint)
         const res = await fetch(`/api/${activeTab}`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: input, code: input, concept: input, query: input, style: selectedStyle })
-        });
-
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Server Error');
-
-        currentResult = data.result;
-        outContent.innerHTML = `<div style="white-space: pre-wrap; line-height: 1.6;">${data.result}</div>`;
-
-      } catch (err) {
-        outContent.innerHTML = `<span class="text-danger">Error: ${err.message}</span>`;
-      } finally {
-        submitBtn.disabled = false;
-      }
-    }
-
-    // Handle Follow-up / Re-ask Doubts
-    async function handleFollowUp() {
-      const doubt = document.getElementById('followUpInput').value.trim();
-      if (!doubt) return alert('Please enter your doubt or follow-up question!');
-
-      const outContent = document.getElementById('outputContent');
-      const followUpBtn = document.getElementById('followUpBtn');
-
-      outContent.innerHTML += `<hr class="border-secondary"><p class="text-warning mb-1"><strong>Q (Doubt):</strong> ${doubt}</p>`;
-      outContent.innerHTML += `<div class="spinner-border spinner-border-sm text-info" role="status"></div> Thinking about your doubt...`;
-      followUpBtn.disabled = true;
-
-      try {
-        const res = await fetch(`/api/${activeTab}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: `Context: ${currentResult}\n\nDoubt/Follow-up: ${doubt}`, style: selectedStyle })
-        });
-
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Server Error');
-
-        currentResult += `\n\nDoubt: ${doubt}\nAnswer: ${data.result}`;
-        outContent.innerHTML = `<div style="white-space: pre-wrap; line-height: 1.6;">${currentResult}</div>`;
-        document.getElementById('followUpInput').value = '';
-
-      } catch (err) {
-        outContent.innerHTML += `<br><span class="text-danger">Error: ${err.message}</span>`;
-      } finally {
-        followUpBtn.disabled = false;
-      }
-    }
-
-    function saveCurrentResult() {
-      if (!currentResult) return alert('No result to save!');
-      const selectedFolder = document.getElementById('saveFolderSelect').value;
-
-      let repo = JSON.parse(localStorage.getItem('mememind_repo') || '[]');
-      repo.unshift({
-        id: Date.now(),
-        folder: selectedFolder,
-        type: activeTab,
-        prompt: currentInput,
-        response: currentResult,
-        date: new Date().toLocaleString()
-      });
-
-      localStorage.setItem('mememind_repo', JSON.stringify(repo));
-      alert(`Saved under '${selectedFolder}' repository!`);
-    }
-
-    function filterByFolder(folderName) {
-      selectedFolderView = folderName;
-      renderFolderBadges();
-      loadRepository();
-    }
-
-    function loadRepository() {
-      const savedList = document.getElementById('savedList');
-      let repo = JSON.parse(localStorage.getItem('mememind_repo') || '[]');
-
-      if (selectedFolderView !== 'All') {
-        repo = repo.filter(item => item.folder === selectedFolderView);
-      }
-
-      if (repo.length === 0) {
-        savedList.innerHTML = `<p class="text-warning">No items saved in '${selectedFolderView}' repository.</p>`;
-        return;
-      }
-
-      savedList.innerHTML = repo.map(item => `
-        <div class="card p-3 bg-dark border-secondary">
-          <div class="d-flex justify-content-between text-warning small mb-1">
-            <span>📁 <strong>${item.folder || 'General'}</strong> | ${item.type.toUpperCase()}</span>
-            <span>${item.date}</span>
-          </div>
-          <p class="fw-bold text-info mb-1">Q: ${item.prompt}</p>
-          <div class="text-white small" style="white-space: pre-wrap;">${item.response}</div>
-        </div>
-      `).join('');
-    }
-
-    // Larger 3D Brain Setup (Positioned prominently in background)
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.getElementById('canvas-container').appendChild(renderer.domElement);
-
-    const brainGroup = new THREE.Group();
-    const materialWire = new THREE.MeshBasicMaterial({ color: 0x6366f1, wireframe: true, transparent: true, opacity: 0.4 });
-    const materialCore = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.65 });
-
-    // Left Hemisphere (Larger Scale)
-    const leftGeo = new THREE.SphereGeometry(9, 20, 20);
-    leftGeo.scale(1.3, 1.0, 1.5);
-    const leftMesh = new THREE.Mesh(leftGeo, materialWire);
-    leftMesh.position.x = -4.5;
-    brainGroup.add(leftMesh);
-
-    // Right Hemisphere (Larger Scale)
-    const rightGeo = new THREE.SphereGeometry(9, 20, 20);
-    rightGeo.scale(1.3, 1.0, 1.5);
-    const rightMesh = new THREE.Mesh(rightGeo, materialCore);
-    rightMesh.position.x = 4.5;
-    brainGroup.add(rightMesh);
-
-    // Central core node cluster
-    const coreGeo = new THREE.IcosahedronGeometry(5, 2);
-    const coreMesh = new THREE.Mesh(coreGeo, new THREE.MeshBasicMaterial({ color: 0xa855f7, wireframe: true, transparent: true, opacity: 0.5 }));
-    brainGroup.add(coreMesh);
-
-    scene.add(brainGroup);
-    
-    camera.position.z = 18;
-    brainGroup.position.y = 1;
-
-    function animate() {
-      requestAnimationFrame(animate);
-      brainGroup.rotation.y += 0.003;
-      brainGroup.rotation.x = Math.sin(Date.now() * 0.001) * 0.15;
-      renderer.render(scene, camera);
-    }
-    animate();
-
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-  </script>
-</body>
-</html>
+          headers: { 'Content-
