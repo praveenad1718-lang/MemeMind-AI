@@ -461,7 +461,7 @@
       `).join('');
     }
 
-    // --- ANATOMICAL PROFILE BRAIN 3D MESH GENERATION ---
+    // --- EXACT SIDE-PROFILE WIREFRAME BRAIN EXTRUSION ANIMATION ---
     const container = document.getElementById('brain-canvas-container');
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
@@ -471,73 +471,74 @@
 
     const brainGroup = new THREE.Group();
 
-    const wireMatBlue = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.4 });
-    const wireMatIndigo = new THREE.MeshBasicMaterial({ color: 0x818cf8, wireframe: true, transparent: true, opacity: 0.45 });
+    // Create Side Profile 2D Shape Shape for Realistic Brain Contour
+    const brainShape = new THREE.Shape();
+    brainShape.moveTo(0, -1.5);
+    // Brain Stem / Base curve
+    brainShape.bezierCurveTo(0.5, -1.8, 0.8, -2.5, 0.6, -3.2);
+    brainShape.bezierCurveTo(0.2, -3.5, -0.4, -3.0, -0.5, -2.2);
+    // Cerebellum bulge at the back-bottom
+    brainShape.bezierCurveTo(-1.8, -2.2, -3.0, -1.5, -3.2, -0.2);
+    // Occipital lobe curve (back top)
+    brainShape.bezierCurveTo(-3.5, 1.2, -2.5, 2.5, -0.5, 2.8);
+    // Parietal & Frontal top curve (rounded crown)
+    brainShape.bezierCurveTo(1.0, 3.2, 2.8, 2.5, 3.2, 1.0);
+    // Frontal lobe curve (front)
+    brainShape.bezierCurveTo(3.5, -0.2, 2.2, -1.8, 1.2, -1.5);
+    brainShape.closePath();
 
-    // 1. Main Cerebrum Left & Right Lobes (Shaped like distinct kidney/brain profile curves)
-    const lobeGeoL = new THREE.SphereGeometry(3.8, 14, 14);
-    lobeGeoL.scale(1.1, 0.85, 1.7); // Elongated front-to-back
-    const leftCerebrum = new THREE.Mesh(lobeGeoL, wireMatBlue);
-    leftCerebrum.position.set(-1.4, 0.3, 0.2);
-    leftCerebrum.rotation.z = 0.1;
-    brainGroup.add(leftCerebrum);
+    const extrudeSettings = {
+      steps: 2,
+      depth: 2.2,
+      bevelEnabled: true,
+      bevelThickness: 0.8,
+      bevelSize: 0.8,
+      bevelSegments: 4
+    };
 
-    const lobeGeoR = new THREE.SphereGeometry(3.8, 14, 14);
-    lobeGeoR.scale(1.1, 0.85, 1.7);
-    const rightCerebrum = new THREE.Mesh(lobeGeoR, wireMatIndigo);
-    rightCerebrum.position.set(1.4, 0.3, 0.2);
-    rightCerebrum.rotation.z = -0.1;
-    brainGroup.add(rightCerebrum);
+    const brainGeometry = new THREE.ExtrudeGeometry(brainShape, extrudeSettings);
+    brainGeometry.center(); // Center the geometry
 
-    // 2. Frontal Lobe Bulge (Front part of the brain)
-    const frontalGeo = new THREE.SphereGeometry(2.3, 10, 10);
-    frontalGeo.scale(1.4, 0.9, 1.1);
-    const frontalMesh = new THREE.Mesh(frontalGeo, wireMatBlue);
-    frontalMesh.position.set(0, 0.4, 2.2);
-    brainGroup.add(frontalMesh);
+    const brainMaterial = new THREE.MeshBasicMaterial({
+      color: 0x38bdf8,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.38
+    });
 
-    // 3. Cerebellum (Back lower brain structure with distinct smaller rounded shape)
-    const cerebGeo = new THREE.SphereGeometry(2.0, 10, 10);
-    cerebGeo.scale(1.5, 0.7, 1.0);
-    const cerebellumMesh = new THREE.Mesh(cerebGeo, wireMatIndigo);
-    cerebellumMesh.position.set(0, -1.5, -2.4);
-    brainGroup.add(cerebellumMesh);
+    const brainMesh = new THREE.Mesh(brainGeometry, brainMaterial);
+    brainMesh.scale.set(1.1, 1.1, 1.1);
+    brainMesh.rotation.y = Math.PI / 2; // Face sideways like reference image
+    brainGroup.add(brainMesh);
 
-    // 4. Brain Stem (Connection downwards)
-    const stemGeo = new THREE.CylinderGeometry(0.6, 0.4, 2.5, 8);
-    const stemMesh = new THREE.Mesh(stemGeo, wireMatBlue);
-    stemMesh.position.set(0, -2.8, -0.6);
-    stemMesh.rotation.x = 0.3;
-    brainGroup.add(stemMesh);
-
-    // 5. Neural Synapse Glow Particles
-    const particleCount = 120;
-    const geometry = new THREE.BufferGeometry();
+    // Glowing Synapse Nodes (Particles distributed inside brain bounds)
+    const particleCount = 150;
+    const pGeometry = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 3);
 
     for (let i = 0; i < particleCount * 3; i += 3) {
-      positions[i] = (Math.random() - 0.5) * 8.0;
-      positions[i + 1] = (Math.random() - 0.5) * 5.0;
-      positions[i + 2] = (Math.random() - 0.5) * 9.5;
+      positions[i] = (Math.random() - 0.5) * 4.5;     // X depth
+      positions[i + 1] = (Math.random() - 0.5) * 4.0;  // Y height
+      positions[i + 2] = (Math.random() - 0.5) * 5.5;  // Z width
     }
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    pGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
     const particleMaterial = new THREE.PointsMaterial({
       color: 0x00ffff,
-      size: 0.38,
+      size: 0.35,
       transparent: true,
       opacity: 0.95
     });
-    const particleSystem = new THREE.Points(geometry, particleMaterial);
+    const particleSystem = new THREE.Points(pGeometry, particleMaterial);
     brainGroup.add(particleSystem);
 
     scene.add(brainGroup);
-    camera.position.z = 13;
+    camera.position.z = 11;
 
     function animate() {
       requestAnimationFrame(animate);
-      brainGroup.rotation.y += 0.003;
-      brainGroup.rotation.x = Math.sin(Date.now() * 0.001) * 0.05;
+      brainGroup.rotation.y += 0.0035; // Gentle rotation showing side profile clearly
+      brainGroup.rotation.z = Math.sin(Date.now() * 0.001) * 0.04;
       renderer.render(scene, camera);
     }
     animate();
