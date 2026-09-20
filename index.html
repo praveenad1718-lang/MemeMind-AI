@@ -448,7 +448,7 @@
         return;
       }
 
-      savedList.innerHTML = repo.item.map ? '' : repo.map(item => `
+      savedList.innerHTML = repo.map(item => `
         <div class="card p-3 bg-dark border-secondary position-relative">
           <button class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2 py-0 px-2" style="font-size: 0.75rem;" onclick="deleteSavedItem(${item.id})">🗑️ Delete</button>
           <div class="d-flex justify-content-between text-warning small mb-1 pe-5">
@@ -461,7 +461,7 @@
       `).join('');
     }
 
-    // --- ACCURATE 3D BRAIN STRUCTURE ANIMATION ---
+    // --- ACCURATE POLYGONAL BRAIN PROFILE 3D ANIMATION ---
     const container = document.getElementById('brain-canvas-container');
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
@@ -471,65 +471,66 @@
 
     const brainGroup = new THREE.Group();
 
-    // Custom Brain Hemispheres using scaled and shaped geometries
-    const wireMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.3 });
-    const coreMat = new THREE.MeshBasicMaterial({ color: 0x818cf8, wireframe: true, transparent: true, opacity: 0.4 });
+    // Wireframe materials matching glowing vector science aesthetic
+    const brainMat1 = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.35 });
+    const brainMat2 = new THREE.MeshBasicMaterial({ color: 0x818cf8, wireframe: true, transparent: true, opacity: 0.45 });
 
-    // Left Hemisphere
-    const leftGeo = new THREE.IcosahedronGeometry(4.2, 2);
-    leftGeo.scale(1.3, 1.0, 1.6);
-    const leftBrain = new THREE.Mesh(leftGeo, wireMat);
-    leftBrain.position.set(-1.8, 0.2, 0);
-    brainGroup.add(leftBrain);
+    // Using elongated deformed geometries to mimic brain hemispheres profile shape
+    const leftHbGeo = new THREE.SphereGeometry(4.5, 16, 16);
+    leftHbGeo.scale(1.4, 0.95, 1.6);
+    const leftHb = new THREE.Mesh(leftHbGeo, brainMat1);
+    leftHb.position.set(-1.5, 0.2, 0);
+    leftHb.rotation.z = 0.15;
+    brainGroup.add(leftHb);
 
-    // Right Hemisphere
-    const rightGeo = new THREE.IcosahedronGeometry(4.2, 2);
-    rightGeo.scale(1.3, 1.0, 1.6);
-    const rightBrain = new THREE.Mesh(rightGeo, coreMat);
-    rightBrain.position.set(1.8, 0.2, 0);
-    brainGroup.add(rightBrain);
+    const rightHbGeo = new THREE.SphereGeometry(4.5, 16, 16);
+    rightHbGeo.scale(1.4, 0.95, 1.6);
+    const rightHb = new THREE.Mesh(rightHbGeo, brainMat2);
+    rightHb.position.set(1.5, 0.2, 0);
+    rightHb.rotation.z = -0.15;
+    brainGroup.add(rightHb);
 
-    // Cerebellum (Back/Bottom part of brain)
-    const cereGeo = new THREE.SphereGeometry(2.2, 12, 12);
-    cereGeo.scale(1.4, 0.9, 1.1);
-    const cerebellum = new THREE.Mesh(cereGeo, wireMat);
-    cerebellum.position.set(0, -2.0, -2.2);
-    brainGroup.add(cerebellum);
+    // Frontal lobe extension
+    const frontalGeo = new THREE.SphereGeometry(2.8, 12, 12);
+    frontalGeo.scale(1.5, 1.1, 1.2);
+    const frontalMesh = new THREE.Mesh(frontalGeo, brainMat1);
+    frontalMesh.position.set(0, 0.4, 2.0);
+    brainGroup.add(frontalMesh);
 
-    // Brain Stem
-    const stemGeo = new THREE.CylinderGeometry(0.8, 0.5, 3.0, 10);
-    const stemMesh = new THREE.Mesh(stemGeo, coreMat);
-    stemMesh.position.set(0, -3.2, -0.5);
-    stemMesh.rotation.x = 0.25;
-    brainGroup.add(stemMesh);
+    // Cerebellum at the back/bottom
+    const cerebGeo = new THREE.SphereGeometry(2.5, 12, 12);
+    cerebGeo.scale(1.6, 0.8, 1.1);
+    const cerebMesh = new THREE.Mesh(cerebGeo, brainMat2);
+    cerebMesh.position.set(0, -1.8, -2.2);
+    brainGroup.add(cerebMesh);
 
-    // Glowing Synapse Nodes (Particles)
-    const particleCount = 100;
+    // Glowing Synapse Particle Points (Network Effect)
+    const particleCount = 140;
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 3);
 
     for (let i = 0; i < particleCount * 3; i += 3) {
-      positions[i] = (Math.random() - 0.5) * 8.5;
-      positions[i + 1] = (Math.random() - 0.5) * 6.5;
-      positions[i + 2] = (Math.random() - 0.5) * 9.5;
+      positions[i] = (Math.random() - 0.5) * 10;     // X width
+      positions[i + 1] = (Math.random() - 0.5) * 6;  // Y height
+      positions[i + 2] = (Math.random() - 0.5) * 11; // Z depth
     }
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
     const particleMaterial = new THREE.PointsMaterial({
       color: 0x00ffff,
-      size: 0.35,
+      size: 0.4,
       transparent: true,
-      opacity: 0.9
+      opacity: 0.95
     });
     const particleSystem = new THREE.Points(geometry, particleMaterial);
     brainGroup.add(particleSystem);
 
     scene.add(brainGroup);
-    camera.position.z = 13;
+    camera.position.z = 14;
 
     function animate() {
       requestAnimationFrame(animate);
-      brainGroup.rotation.y += 0.003;
+      brainGroup.rotation.y += 0.0035;
       brainGroup.rotation.x = Math.sin(Date.now() * 0.001) * 0.06;
       renderer.render(scene, camera);
     }
