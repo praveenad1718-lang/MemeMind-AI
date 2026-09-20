@@ -461,7 +461,7 @@
       `).join('');
     }
 
-    // --- EXACT SIDE-PROFILE WIREFRAME BRAIN EXTRUSION ANIMATION ---
+    // --- PROPER 3D SIDE-PROFILE BRAIN WIREFRAME ANIMATION ---
     const container = document.getElementById('brain-canvas-container');
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
@@ -471,74 +471,67 @@
 
     const brainGroup = new THREE.Group();
 
-    // Create Side Profile 2D Shape Shape for Realistic Brain Contour
+    // Accurate Side Profile Brain Contour Shape
     const brainShape = new THREE.Shape();
-    brainShape.moveTo(0, -1.5);
-    // Brain Stem / Base curve
-    brainShape.bezierCurveTo(0.5, -1.8, 0.8, -2.5, 0.6, -3.2);
-    brainShape.bezierCurveTo(0.2, -3.5, -0.4, -3.0, -0.5, -2.2);
-    // Cerebellum bulge at the back-bottom
-    brainShape.bezierCurveTo(-1.8, -2.2, -3.0, -1.5, -3.2, -0.2);
-    // Occipital lobe curve (back top)
-    brainShape.bezierCurveTo(-3.5, 1.2, -2.5, 2.5, -0.5, 2.8);
-    // Parietal & Frontal top curve (rounded crown)
-    brainShape.bezierCurveTo(1.0, 3.2, 2.8, 2.5, 3.2, 1.0);
-    // Frontal lobe curve (front)
-    brainShape.bezierCurveTo(3.5, -0.2, 2.2, -1.8, 1.2, -1.5);
+    brainShape.moveTo(0, -1.2);
+    brainShape.bezierCurveTo(0.6, -1.5, 1.0, -2.2, 0.8, -2.8); // Brain stem base
+    brainShape.bezierCurveTo(0.3, -3.2, -0.6, -2.8, -0.8, -2.0); // Stem curve
+    brainShape.bezierCurveTo(-2.0, -2.0, -3.2, -1.2, -3.5, 0.2); // Cerebellum back
+    brainShape.bezierCurveTo(-3.8, 1.8, -2.2, 3.2, 0.2, 3.2);  // Occipital & Top Crown
+    brainShape.bezierCurveTo(2.2, 3.2, 3.5, 1.8, 3.5, 0.2);   // Parietal & Frontal
+    brainShape.bezierCurveTo(3.5, -1.2, 2.0, -2.0, 1.0, -1.2); // Frontal lobe lower curve
     brainShape.closePath();
 
     const extrudeSettings = {
-      steps: 2,
-      depth: 2.2,
+      steps: 1,
+      depth: 3.2,          // Proper thickness so it's not a flat disc
       bevelEnabled: true,
-      bevelThickness: 0.8,
-      bevelSize: 0.8,
-      bevelSegments: 4
+      bevelThickness: 0.9,
+      bevelSize: 0.9,
+      bevelSegments: 5
     };
 
     const brainGeometry = new THREE.ExtrudeGeometry(brainShape, extrudeSettings);
-    brainGeometry.center(); // Center the geometry
+    brainGeometry.center();
 
     const brainMaterial = new THREE.MeshBasicMaterial({
       color: 0x38bdf8,
       wireframe: true,
       transparent: true,
-      opacity: 0.38
+      opacity: 0.42
     });
 
     const brainMesh = new THREE.Mesh(brainGeometry, brainMaterial);
-    brainMesh.scale.set(1.1, 1.1, 1.1);
-    brainMesh.rotation.y = Math.PI / 2; // Face sideways like reference image
+    brainMesh.scale.set(1.0, 1.0, 1.0);
     brainGroup.add(brainMesh);
 
-    // Glowing Synapse Nodes (Particles distributed inside brain bounds)
-    const particleCount = 150;
+    // Glowing Synapse Particles inside the brain volume
+    const particleCount = 140;
     const pGeometry = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 3);
 
     for (let i = 0; i < particleCount * 3; i += 3) {
-      positions[i] = (Math.random() - 0.5) * 4.5;     // X depth
-      positions[i + 1] = (Math.random() - 0.5) * 4.0;  // Y height
-      positions[i + 2] = (Math.random() - 0.5) * 5.5;  // Z width
+      positions[i] = (Math.random() - 0.5) * 4.2;     // X
+      positions[i + 1] = (Math.random() - 0.5) * 3.8;  // Y
+      positions[i + 2] = (Math.random() - 0.5) * 3.0;  // Z
     }
     pGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
     const particleMaterial = new THREE.PointsMaterial({
-      color: 0x00ffff,
-      size: 0.35,
+      color: 0x22d3ee,
+      size: 0.32,
       transparent: true,
-      opacity: 0.95
+      opacity: 0.9
     });
     const particleSystem = new THREE.Points(pGeometry, particleMaterial);
     brainGroup.add(particleSystem);
 
     scene.add(brainGroup);
-    camera.position.z = 11;
+    camera.position.z = 8.5;
 
     function animate() {
       requestAnimationFrame(animate);
-      brainGroup.rotation.y += 0.0035; // Gentle rotation showing side profile clearly
-      brainGroup.rotation.z = Math.sin(Date.now() * 0.001) * 0.04;
+      brainGroup.rotation.y += 0.004; // Smooth rotation to reveal 3D depth and profile clearly
       renderer.render(scene, camera);
     }
     animate();
